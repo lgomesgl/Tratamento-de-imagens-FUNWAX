@@ -1,0 +1,15 @@
+Type_Concentration_Reynolds_Toil_Tcool_time_teste
+
+Type: Macro / Micro
+
+Concentration: 10%
+
+Reynolds: 1000 / 2000 / 5000 / 9000
+
+Toil: WAT-1°C / WAT+5°C
+
+Tcool: 6°C / 16°C
+
+Time: 1 / 5 / 30 / 60 ...
+
+Teste: 1 / 2 (duplicate) / 3 (triplicate)

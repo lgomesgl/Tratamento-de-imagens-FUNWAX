@@ -7,7 +7,7 @@ import seaborn as sns
 import os 
 
 # create the database
-def database(file, data):    
+def database(file, data, cnt_ellipse, cnt_rect):    
     # properties
     properties = file[:-4].split('_')
     '''
@@ -39,19 +39,22 @@ def database(file, data):
     
     # filters
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    image = cv2.medianBlur(gray_image, 1)
+    image = cv2.medianBlur(gray_image, 1) # !!!!!!!!!!!!!!
     image = cv2.GaussianBlur(gray_image, (3,3), 0)
     _, th = cv2.threshold(image, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
     image = cv2.equalizeHist(image)
     th = cv2.adaptiveThreshold(image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
 
     # Apply aperture morphological filter
-    kernel = np.ones((5,5),np.uint8)
+    kernel = np.ones((5, 5),np.uint8)
     opening = cv2.morphologyEx(th, cv2.MORPH_OPEN, kernel, iterations=1)
     # cv2.imshow('teste', opening)
     # cv2.waitKey(0)
     
     # indentify the contours 
+    '''
+        try to find the best image for input in cv2.findCountours
+    '''
     contours, hierarchy = cv2.findContours(opening, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     
     # Exibir a imagem resultante com os contornos identificados
@@ -61,8 +64,13 @@ def database(file, data):
     # Converter a imagem de cinza para colorida
     # img = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
     
-    # Desenhar retângulos nos contornos
+    # calculate AR
     for cnt in contours:
+        '''
+            cv2.fitEllipse needs 5 point in contours. Some contours have less than 5 points.
+            Try to use the the function fitEllipse to calculate the AR. If don't work, use the function
+            minAreaRect to calculate the AR.
+        '''
         try:
             ellipse = cv2.fitEllipse(cnt)
                   
@@ -72,6 +80,12 @@ def database(file, data):
             
             row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'N_of_crystals': None, 'AR': ar}])
             data = pd.concat([data, row_to_append], ignore_index=True)
+            
+            cnt_ellipse += 1
+            
+            # draw the contours
+            image = cv2.ellipse(image, ellipse[0], ellipse[1], ellipse[2], 0, 360, (0, 0, 255), 3)
+            
  
         except:
             rect = cv2.minAreaRect(cnt)
@@ -79,16 +93,26 @@ def database(file, data):
             box = np.int0(box)       
             '''
                 rect -> ((x, y), (w, h), angle)
+                https://namkeenman.wordpress.com/2015/12/18/open-cv-determine-angle-of-rotatedrect-minarearect/
             '''
-            # calculate the AR -- this formula is correct?????
-            major = max(abs(2*rect[1][0]*np.cos(-1*rect[2])), abs(2*rect[1][0]*np.sin(-1*rect[2])))
-            minor = min(abs(2*rect[1][0]*np.cos(-1*rect[2])), abs(2*rect[1][0]*np.sin(-1*rect[2])))
+            # calculate the AR 
+            major = max(rect[1][0], rect[1][1])
+            minor = min(rect[1][0], rect[1][1])
             ar = major/minor
             
             row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'N_of_crystals': None, 'AR': ar}])
             data = pd.concat([data, row_to_append], ignore_index=True)
-        
-    return data
+            
+            cnt_rect += 1
+            
+            # draw the contours
+            image = cv2.drawContours(image, [box], 0, (0, 0, 255), 2)
+      
+    # validate the contours
+    # cv2.imshow('Cristais', image)
+    # cv2.waitKey(0)
+      
+    return data, cnt_ellipse, cnt_rect
     
 def graphics(data):
     # 1: AR x Reynolds, hue = Type
@@ -124,11 +148,19 @@ def graphics(data):
 FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
 data = pd.DataFrame(columns=['Type', 'Reynolds', 'Toil', 'Tcool', 'N_of_crystals', 'AR'])
 
+cnt_ellipse = 0
+cnt_rect = 0
+
 files = os.listdir(FOLDER_PATH) # list with all files in folder
 for file in files:
     if file.endswith('.jpg'): # take just the images
-        data = database(file, data)
+        data, cnt_ellipse, cnt_rect = database(file, data, cnt_ellipse, cnt_rect)
+        print('%s...OK' % file)
 
-print(data)
+# print(data)
 # graphics(data)
 
+print('AR calculate by ellipse: %s' % cnt_ellipse)
+print('AR calculate by rectangle: %s' % cnt_rect)
+print('Total: %s' % (cnt_ellipse + cnt_rect))
+print('Percentage of AR ellipse: %s' % (round((cnt_ellipse*100/(cnt_ellipse+cnt_rect)), 2)))

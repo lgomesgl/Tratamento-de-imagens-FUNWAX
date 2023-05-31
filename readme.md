@@ -8,3 +8,7 @@ Graphics:
 4: N of crystals x Reynolds, hue = Type
 5: N of crystals x Reynolds, hue = Toil
 6: N of crystals x Reynolds, hue = Tcool
+
+Gráfico de tempo
+Gráfico de N_of_crystals
+

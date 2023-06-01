@@ -17,7 +17,7 @@ def database(file, data, cnt_ellipse, cnt_rect):
             ''    [3] -> Reynolds
             ''    [4] -> Toil
             ''    [5] -> Tcool
-            ''    [6] -> ?????
+            ''    [6] -> Time
     '''
     
     # get the contours(Leticia code)
@@ -32,7 +32,7 @@ def database(file, data, cnt_ellipse, cnt_rect):
         
     # crop the image
     height, width,_ = image.shape
-    crop_size = int(min(height, width) * 0.35)
+    crop_size = int(min(height, width) * 0.40)
     x = int((width - crop_size) / 2)
     y = int((height - crop_size) / 2)
     image = image[y:y+crop_size, x:x+crop_size]

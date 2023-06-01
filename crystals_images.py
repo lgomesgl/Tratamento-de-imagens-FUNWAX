@@ -22,7 +22,7 @@ def database(file, data, cnt_ellipse, cnt_rect):
     
     # get the contours(Leticia code)
     # read the image
-    image = cv2.imread('%s\%s' % (FOLDER_PATH, file))
+    image = cv2.imread('%s/%s' % (FOLDER_PATH, file))
     
     # verify if the color of the image
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -78,7 +78,7 @@ def database(file, data, cnt_ellipse, cnt_rect):
             minor = min(ellipse[1][0], ellipse[1][1])
             ar = major/minor
             
-            row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'N_of_crystals': None, 'AR': ar}])
+            row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'N_of_crystals': None, 'Time':properties[6], 'AR': ar}])
             data = pd.concat([data, row_to_append], ignore_index=True)
             
             cnt_ellipse += 1
@@ -100,12 +100,12 @@ def database(file, data, cnt_ellipse, cnt_rect):
             minor = min(rect[1][0], rect[1][1])
             ar = major/minor
             
-            row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'N_of_crystals': None, 'AR': ar}])
+            row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'N_of_crystals': None, 'Time':properties[6], 'AR': ar}])
             data = pd.concat([data, row_to_append], ignore_index=True)
             
             cnt_rect += 1
             
-            # draw the contours
+            #draw the contours
             image = cv2.drawContours(image, [box], 0, (0, 0, 255), 2)
       
     # validate the contours
@@ -116,19 +116,19 @@ def database(file, data, cnt_ellipse, cnt_rect):
     
 def graphics(data):
     # 1: AR x Reynolds, hue = Type
-    sns.lineplot(x=data['Reynolds'], y=data['AR'], hue=data['Type'])
-    plt.title('AR x Reynolds')
-    plt.show()
+    # sns.scatterplot(x=data['Reynolds'], y=data['AR'], hue=data['Type'])
+    # plt.title('AR x Reynolds')
+    # plt.show()
     
     # # 2: AR x Reynolds, hue = Toil
     # sns.lineplot(x=data['Reynolds'], y=data['AR'], hue=data['Toil'])
     # plt.title('AR x Reynolds')
-    # # plt.show()
-    
+    # plt.show()
+      
     # # 3: AR x Reynolds, hue = Tcool
     # sns.lineplot(x=data['Reynolds'], y=data['AR'], hue=data['Tcool'])
     # plt.title('AR x Reynolds')
-    # # plt.show()
+    # plt.show()
     
     # # 4: N of crystals x Reynolds, hue = Type
     # sns.lineplot(x=data['N_of_crystals'], y=data['AR'], hue=data['Type'])
@@ -145,8 +145,21 @@ def graphics(data):
     # plt.title('AR x Reynolds')
     # # plt.show()
     
-FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
-data = pd.DataFrame(columns=['Type', 'Reynolds', 'Toil', 'Tcool', 'N_of_crystals', 'AR'])
+    # 7: AR x Time
+    # df = data.copy()
+    # df['Time'] = df['Time'].astype(int)
+    # df = df.sort_values('Time', ascending=True).reset_index(drop=True)
+    # sns.lineplot(df, x=df['Time'], y=df['AR'])
+    # plt.show()
+    
+    # 8: Distribution of AR
+    # sns.histplot(data, x = data['AR'], bins=100, kde=True, hue=None)
+    # plt.show()  
+    
+    return df
+    
+FOLDER_PATH = '/home/lucas/FUNWAX/Images'
+data = pd.DataFrame(columns=['Type', 'Reynolds', 'Toil', 'Tcool', 'N_of_crystals', 'Time', 'AR'])
 
 cnt_ellipse = 0
 cnt_rect = 0
@@ -158,7 +171,7 @@ for file in files:
         print('%s...OK' % file)
 
 # print(data)
-# graphics(data)
+df = graphics(data)
 
 print('AR calculate by ellipse: %s' % cnt_ellipse)
 print('AR calculate by rectangle: %s' % cnt_rect)

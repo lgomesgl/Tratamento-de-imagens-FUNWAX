@@ -2,11 +2,21 @@ import cv2
 import numpy as np
 import os
 
+'''
+    Function to test the filters, has three option to see the image:
+    1) Original image
+    2) After the filters are apply
+    3) With the contours 
+'''
 def filters(file):
     # read the image    
     image = cv2.imread('%s/%s' % (FOLDER_PATH, file))
     
-    # ver   ify if the color of the image
+    # 1 option:
+    cv2.imshow('Original image', image)
+    cv2.waitKey(0)
+    
+    # verify if the color of the image
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     mean = cv2.mean(gray)[0]
     if mean < 127:
@@ -19,6 +29,7 @@ def filters(file):
     y = int((height - crop_size) / 2)
     image = image[y:y+crop_size, x:x+crop_size]
     
+    # filters
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # image = cv2.medianBlur(gray_image, 1) # !!!!!!!!!!!!!!
     image = cv2.GaussianBlur(gray_image, (3,3), 0)
@@ -29,8 +40,10 @@ def filters(file):
     # Apply aperture morphological filter
     kernel = np.ones((5, 5),np.uint8)
     opening = cv2.morphologyEx(th, cv2.MORPH_OPEN, kernel, iterations=1)
-    # cv2.imshow('teste', opening)
-    # cv2.waitKey(0)
+    
+    # 2 option:
+    cv2.imshow('Filter image', opening)
+    cv2.waitKey(0)
     
     # indentify the contours 
     '''
@@ -59,8 +72,8 @@ def filters(file):
             #draw the contours
             image = cv2.drawContours(image, [box], 0, (0, 0, 255), 2)
       
-    # validate the contours
-    cv2.imshow('Cristais', image)
+    # 3 option:
+    cv2.imshow('Contours', image)
     cv2.waitKey(0)
     
 FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'

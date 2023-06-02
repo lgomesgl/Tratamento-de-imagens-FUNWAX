@@ -3,7 +3,7 @@ import numpy as np
 import os
 
 '''
-    Function to test the filters, has three option to see the image:
+    Function to test the filters, have three option to see the image:
     1) Original image
     2) After the filters are apply
     3) With the contours 

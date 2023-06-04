@@ -3,7 +3,7 @@ import numpy as np
 import os
 
 '''
-    Function to test the filters, has three option to see the image:
+    Function to test the filters, have three option to see the image:
     1) Original image
     2) After the filters are apply
     3) With the contours 
@@ -11,10 +11,6 @@ import os
 def filters(file):
     # read the image    
     image = cv2.imread('%s/%s' % (FOLDER_PATH, file))
-    
-    # 1 option:
-    cv2.imshow('Original image', image)
-    cv2.waitKey(0)
     
     # verify if the color of the image
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -29,17 +25,22 @@ def filters(file):
     y = int((height - crop_size) / 2)
     image = image[y:y+crop_size, x:x+crop_size]
     
+    # 1 option:
+    cv2.imshow('Original image', image)
+    cv2.waitKey(0)
+    
     # filters
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # image = cv2.medianBlur(gray_image, 1) # !!!!!!!!!!!!!!
-    image = cv2.GaussianBlur(gray_image, (3,3), 0)
-    _, th = cv2.threshold(image, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-    image = cv2.equalizeHist(image)
-    th = cv2.adaptiveThreshold(image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
+    image_blur = cv2.GaussianBlur(gray_image, (1, 1), 0)
+    # image_blur = cv2.blur(gray_image, (3, 3))
+    # _, th = cv2.threshold(image_blur, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+    image_eq = cv2.equalizeHist(image_blur)
+    th_adap = cv2.adaptiveThreshold(image_eq, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
 
     # Apply aperture morphological filter
     kernel = np.ones((5, 5),np.uint8)
-    opening = cv2.morphologyEx(th, cv2.MORPH_OPEN, kernel, iterations=1)
+    opening = cv2.morphologyEx(th_adap, cv2.MORPH_OPEN, kernel, iterations=1)
     
     # 2 option:
     cv2.imshow('Filter image', opening)
@@ -52,6 +53,7 @@ def filters(file):
     contours, hierarchy = cv2.findContours(opening, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     
     # calculate AR
+    image_cnt = image.copy()
     for cnt in contours:
         '''
             cv2.fitEllipse needs 5 point in contours. Some contours have less than 5 points.
@@ -62,7 +64,7 @@ def filters(file):
             ellipse = cv2.fitEllipse(cnt)
                            
             # draw the contours
-            image = cv2.ellipse(image, ellipse[0], ellipse[1], ellipse[2], 0, 360, (0, 0, 255), 3)
+            image_cnt = cv2.ellipse(image_cnt, ellipse[0], ellipse[1], ellipse[2], 0, 360, (0, 0, 255), 3)
             
         except:
             rect = cv2.minAreaRect(cnt)
@@ -70,11 +72,20 @@ def filters(file):
             box = np.int0(box)       
 
             #draw the contours
-            image = cv2.drawContours(image, [box], 0, (0, 0, 255), 2)
+            image_cnt = cv2.drawContours(image_cnt, [box], 0, (0, 0, 255), 2)
       
     # 3 option:
-    cv2.imshow('Contours', image)
+    cv2.imshow('Contours', image_cnt)
     cv2.waitKey(0)
+    
+    # image = cv2.resize(image, (0, 0), None, .25, .25)
+    # opening = cv2.resize(opening, (0, 0), None, .25, .25)
+    # image_cnt = cv2.resize(image_cnt, (0, 0), None, .25, .25)
+    
+    # images = np.c_((image, opening))
+    # cv2.imshow('images', images)
+    
+    
     
 FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
 files = os.listdir(FOLDER_PATH)

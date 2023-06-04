@@ -41,14 +41,14 @@ def database(file, data, cnt_ellipse, cnt_rect):
     if properties[1] == 'Macro':
         gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         # image = cv2.medianBlur(gray_image, 1) # !!!!!!!!!!!!!!
-        image = cv2.GaussianBlur(gray_image, (3,3), 0)
-        _, th = cv2.threshold(image, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-        image = cv2.equalizeHist(image)
-        th = cv2.adaptiveThreshold(image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
+        image_blur = cv2.GaussianBlur(gray_image, (3,3), 0)
+        # _, th = cv2.threshold(image_blur, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+        image_eq = cv2.equalizeHist(image_blur)
+        th_adap = cv2.adaptiveThreshold(image_eq, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
 
         # Apply aperture morphological filter
         kernel = np.ones((5, 5),np.uint8)
-        opening = cv2.morphologyEx(th, cv2.MORPH_OPEN, kernel, iterations=1)
+        opening = cv2.morphologyEx(th_adap, cv2.MORPH_OPEN, kernel, iterations=1)
         # cv2.imshow('teste', opening)
         # cv2.waitKey(0)
         
@@ -68,14 +68,14 @@ def database(file, data, cnt_ellipse, cnt_rect):
     elif properties[1] == 'Micro':
         gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         # image = cv2.medianBlur(gray_image, 1) # !!!!!!!!!!!!!!
-        image = cv2.GaussianBlur(gray_image, (3,3), 0)
-        _, th = cv2.threshold(image, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-        image = cv2.equalizeHist(image)
-        th = cv2.adaptiveThreshold(image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
+        image_blur = cv2.GaussianBlur(gray_image, (1, 1), 0)
+        # _, th = cv2.threshold(image_blur, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+        image_eq = cv2.equalizeHist(image_blur)
+        th_adap = cv2.adaptiveThreshold(image_eq, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
 
         # Apply aperture morphological filter
         kernel = np.ones((5, 5),np.uint8)
-        opening = cv2.morphologyEx(th, cv2.MORPH_OPEN, kernel, iterations=1)
+        opening = cv2.morphologyEx(th_adap, cv2.MORPH_OPEN, kernel, iterations=1)
         # cv2.imshow('teste', opening)
         # cv2.waitKey(0)
         

@@ -142,48 +142,55 @@ def database(file, data, cnt_ellipse, cnt_rect):
     
     N_of_crystals = data.shape[0]
     
-    return data, N_of_crystals, cnt_ellipse, cnt_rect
+    return data, properties, N_of_crystals, cnt_ellipse, cnt_rect
        
-def graphics(data):
+def graphics(data, data_crystals):
     # 1: AR x Reynolds, hue = Type
     sns.lineplot(x=data['Reynolds'], y=data['AR'], hue=data['Type'])
     plt.title('AR x Reynolds')
-    plt.show()
-    
-    # # 2: AR x Reynolds, hue = Toil
-    sns.lineplot(x=data['Reynolds'], y=data['AR'], hue=data['Toil'])
-    plt.title('AR x Reynolds')
-    plt.show()
-      
-    # # 3: AR x Reynolds, hue = Tcool
-    # sns.lineplot(x=data['Reynolds'], y=data['AR'], hue=data['Tcool'])
-    # plt.title('AR x Reynolds')
     # plt.show()
     
-    # # 4: N of crystals x Reynolds, hue = Type
-    # sns.lineplot(x=data['N_of_crystals'], y=data['AR'], hue=data['Type'])
-    # plt.title('AR x Reynolds')
-    # # plt.show()
+    # 2: AR x Reynolds, hue = Toil
+    sns.lineplot(x=data['Reynolds'], y=data['AR'], hue=data['Toil'])
+    plt.title('AR x Reynolds')
+    # plt.show()
+      
+    # 3: AR x Reynolds, hue = Tcool
+    sns.lineplot(x=data['Reynolds'], y=data['AR'], hue=data['Tcool'])
+    plt.title('AR x Reynolds')
+    # plt.show()
     
-    # # 5: N of crystals x Reynolds, hue = Toil
-    # sns.lineplot(x=data['N_of_crystals'], y=data['AR'], hue=data['Toil'])
-    # plt.title('AR x Reynolds')
-    # # plt.show()
-    
-    # # 6: N of crystals x Reynolds, hue = Tcool
-    # sns.lineplot(x=data['N_of_crystals'], y=data['AR'], hue=data['Tcool'])
-    # plt.title('AR x Reynolds')
-    # # plt.show()
-    
-    # 7: AR x Time
+    # 4: AR x Time
     df = data.copy()
     df['Time'] = df['Time'].astype(int)
     df = df.sort_values('Time', ascending=True).reset_index(drop=True)
     sns.lineplot(df, x=df['Time'], y=df['AR'], hue=df['Type'])
-    plt.show()
+    plt.title('AR x Time')
+    # plt.show()
     
-    # 8: Distribution of AR
+    # 5: Distribution of AR
     sns.histplot(data, x = data['AR'], bins=100, kde=True, hue=data['Type'])
+    plt.title('Distribuiton of AR')
+    # plt.show()  
+    
+    # 6: N of crystals x Reynolds, hue = Type
+    sns.lineplot(x=data_crystals['Reynolds'], y=data_crystals['N_of_crystals'], hue=data_crystals['Type'])
+    plt.title('N_of_crystals x Reynolds')
+    # plt.show()
+    
+    # 7: N of crystals x Reynolds, hue = Toil
+    sns.lineplot(x=data_crystals['Reynolds'], y=data_crystals['N_of_crystals'], hue=data_crystals['Toil'])
+    plt.title('N_of_crystals x Reynolds')
+    # plt.show()
+    
+    # 8: N of crystals x Reynolds, hue = Tcool
+    sns.lineplot(x=data_crystals['Reynolds'], y=data_crystals['N_of_crystals'], hue=data_crystals['Tcool'])
+    plt.title('N_of_crystals x Reynolds')
+    # plt.show()
+    
+    # 9: Distribution of N_of_crystals
+    sns.histplot(data_crystals, x = data_crystals['N_of_crystals'], bins=100, kde=True, hue=data_crystals['Type'])
+    plt.title('Distribuiton of N_of_crystals')
     plt.show()  
     
     return 
@@ -191,25 +198,26 @@ def graphics(data):
 # FOLDER_PATH = '/home/lucas/FUNWAX/Images'
 FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
 data = pd.DataFrame(columns=['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'AR'])
-data_ = pd.DataFrame(columns=['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'N_of_crystals'])
+data_crystals = pd.DataFrame(columns=['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'N_of_crystals'])
 
 cnt_ellipse = 0
 cnt_rect = 0
 
 N_of_crystals_ = [0]
-diff_crystals = []
 
 files = os.listdir(FOLDER_PATH) # list with all files in folder
 for i, file in enumerate(files):
     if file.endswith('.jpg'): # take just the images
-        data, N_of_crystals, cnt_ellipse, cnt_rect = database(file, data, cnt_ellipse, cnt_rect)
+        data, properties, N_of_crystals, cnt_ellipse, cnt_rect = database(file, data, cnt_ellipse, cnt_rect)
         print('%s...OK' % file)
         N_of_crystals_.append(N_of_crystals)
-        diff_crystals.append(int(N_of_crystals-N_of_crystals_[i]))
+        row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'N_of_crystals': int(N_of_crystals-N_of_crystals_[i])}])
+        data_crystals = pd.concat([data_crystals, row_to_append], ignore_index=True)
+        
         
         
 # print(data)
-graphics(data)
+graphics(data, data_crystals)
 
 print('AR calculate by ellipse: %s' % cnt_ellipse)
 print('AR calculate by rectangle: %s' % cnt_rect)

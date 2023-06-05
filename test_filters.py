@@ -26,6 +26,7 @@ def filters(file):
     image = image[y:y+crop_size, x:x+crop_size]
     
     # 1 option:
+    print(image.shape)
     cv2.imshow('Original image', image)
     cv2.waitKey(0)
     
@@ -43,6 +44,7 @@ def filters(file):
     opening = cv2.morphologyEx(th_adap, cv2.MORPH_OPEN, kernel, iterations=1)
     
     # 2 option:
+    print(opening)
     cv2.imshow('Filter image', opening)
     cv2.waitKey(0)
     
@@ -75,16 +77,9 @@ def filters(file):
             image_cnt = cv2.drawContours(image_cnt, [box], 0, (0, 0, 255), 2)
       
     # 3 option:
+    print(image_cnt)
     cv2.imshow('Contours', image_cnt)
     cv2.waitKey(0)
-    
-    # image = cv2.resize(image, (0, 0), None, .25, .25)
-    # opening = cv2.resize(opening, (0, 0), None, .25, .25)
-    # image_cnt = cv2.resize(image_cnt, (0, 0), None, .25, .25)
-    
-    # images = np.c_((image, opening))
-    # cv2.imshow('images', images)
-    
     
     
 FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'

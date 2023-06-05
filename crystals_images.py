@@ -58,12 +58,6 @@ def database(file, data, cnt_ellipse, cnt_rect):
         '''
         contours, hierarchy = cv2.findContours(opening, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         
-        # Exibir a imagem resultante com os contornos identificados
-        # cv2.imshow('Contornos', opening)
-        # cv2.waitKey(0)
-        
-        # Converter a imagem de cinza para colorida
-        # img = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
         
     elif properties[1] == 'Micro':
         gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -84,14 +78,7 @@ def database(file, data, cnt_ellipse, cnt_rect):
             try to find the best image for input in cv2.findCountours
         '''
         contours, hierarchy = cv2.findContours(opening, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        
-        # Exibir a imagem resultante com os contornos identificados
-        # cv2.imshow('Contornos', opening)
-        # cv2.waitKey(0)
-        
-        # Converter a imagem de cinza para colorida
-        # img = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)    
-        
+              
     # calculate AR
     for cnt in contours:
         '''
@@ -114,7 +101,6 @@ def database(file, data, cnt_ellipse, cnt_rect):
             # draw the contours
             image = cv2.ellipse(image, ellipse[0], ellipse[1], ellipse[2], 0, 360, (0, 0, 255), 3)
             
- 
         except:
             rect = cv2.minAreaRect(cnt)
             box = cv2.boxPoints(rect)
@@ -146,54 +132,64 @@ def database(file, data, cnt_ellipse, cnt_rect):
        
 def graphics(data, data_crystals):
     # 1: AR x Reynolds, hue = Type
+    plt.subplot(2, 2, 1)
     sns.lineplot(x=data['Reynolds'], y=data['AR'], hue=data['Type'])
     plt.title('AR x Reynolds')
-    # plt.show()
-    
+
     # 2: AR x Reynolds, hue = Toil
+    plt.subplot(2, 2, 2)
     sns.lineplot(x=data['Reynolds'], y=data['AR'], hue=data['Toil'])
     plt.title('AR x Reynolds')
-    # plt.show()
-      
+
     # 3: AR x Reynolds, hue = Tcool
+    plt.subplot(2, 2, 3)
     sns.lineplot(x=data['Reynolds'], y=data['AR'], hue=data['Tcool'])
     plt.title('AR x Reynolds')
-    # plt.show()
-    
+ 
     # 4: AR x Time
+    plt.subplot(2, 2, 4)
     df = data.copy()
     df['Time'] = df['Time'].astype(int)
     df = df.sort_values('Time', ascending=True).reset_index(drop=True)
     sns.lineplot(df, x=df['Time'], y=df['AR'], hue=df['Type'])
     plt.title('AR x Time')
-    # plt.show()
+    plt.show()
     
     # 5: Distribution of AR
     sns.histplot(data, x = data['AR'], bins=100, kde=True, hue=data['Type'])
     plt.title('Distribuiton of AR')
-    # plt.show()  
-    
+    plt.show()
+  
+    # --------------------------------------- N_of_crystals graphics ---------------------------------------------------
     # 6: N of crystals x Reynolds, hue = Type
+    plt.subplot(2, 2, 1)
     sns.lineplot(x=data_crystals['Reynolds'], y=data_crystals['N_of_crystals'], hue=data_crystals['Type'])
     plt.title('N_of_crystals x Reynolds')
-    # plt.show()
-    
+ 
     # 7: N of crystals x Reynolds, hue = Toil
+    plt.subplot(2, 2, 2)
     sns.lineplot(x=data_crystals['Reynolds'], y=data_crystals['N_of_crystals'], hue=data_crystals['Toil'])
     plt.title('N_of_crystals x Reynolds')
-    # plt.show()
-    
+ 
     # 8: N of crystals x Reynolds, hue = Tcool
+    plt.subplot(2, 2, 3)
     sns.lineplot(x=data_crystals['Reynolds'], y=data_crystals['N_of_crystals'], hue=data_crystals['Tcool'])
     plt.title('N_of_crystals x Reynolds')
-    # plt.show()
+ 
+    # 10: N_of_crystals x Time
+    plt.subplot(2, 2, 4)
+    df_ = data_crystals.copy()
+    df_['Time'] = df_['Time'].astype(int)
+    df_ = df_.sort_values('Time', ascending=True).reset_index(drop=True)
+    sns.lineplot(df_, x=df_['Time'], y=df_['N_of_crystals'], hue=df_['Type'])
+    plt.title('AR x Time')
+    plt.show()
     
     # 9: Distribution of N_of_crystals
     sns.histplot(data_crystals, x = data_crystals['N_of_crystals'], bins=100, kde=True, hue=data_crystals['Type'])
     plt.title('Distribuiton of N_of_crystals')
     plt.show()  
     
-    return 
     
 # FOLDER_PATH = '/home/lucas/FUNWAX/Images'
 FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
@@ -213,8 +209,6 @@ for i, file in enumerate(files):
         N_of_crystals_.append(N_of_crystals)
         row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'N_of_crystals': int(N_of_crystals-N_of_crystals_[i])}])
         data_crystals = pd.concat([data_crystals, row_to_append], ignore_index=True)
-        
-        
         
 # print(data)
 graphics(data, data_crystals)

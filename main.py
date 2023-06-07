@@ -2,7 +2,7 @@ import pandas as pd
 import os
 
 from classification_crystals import exclude_the_data, save_the_data, database, graphics
-from validate_the_classfication import validate
+from validate_the_classfication import validate, get_image
 
 FOLDER_PATH = '/home/lucas/FUNWAX/Images'
 # FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
@@ -19,11 +19,12 @@ files = os.listdir(FOLDER_PATH) # list with all files in folder
 exclude_the_data(FOLDER_PATH, NAME_CSV_FILE)
 for i, file in enumerate(files):
     if file.endswith('.jpg'): # take just the images
-        data, contours, properties, N_of_crystals, cnt_ellipse, cnt_rect = database(FOLDER_PATH, file, data, cnt_ellipse, cnt_rect)
+        data, image, contours, properties, N_of_crystals, cnt_ellipse, cnt_rect = database(FOLDER_PATH, file, data, cnt_ellipse, cnt_rect)
         print('%s...OK' % file)
         
         # validate the classify
-        
+        # image = get_image(FOLDER_PATH, NAME_CSV_FILE)
+        # validate(image, data)
         
         
         # N_of_crystals_.append(N_of_crystals)

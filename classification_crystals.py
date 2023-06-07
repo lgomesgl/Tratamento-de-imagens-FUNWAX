@@ -57,8 +57,7 @@ def database(folder_path, file, data, cnt_ellipse, cnt_rect):
             try to find the best image for input in cv2.findCountours
         '''
         contours, hierarchy = cv2.findContours(opening, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        
-        
+           
     elif properties[1] == 'Micro':
         gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         # image = cv2.medianBlur(gray_image, 1) # !!!!!!!!!!!!!!
@@ -134,7 +133,7 @@ def database(folder_path, file, data, cnt_ellipse, cnt_rect):
     
     N_of_crystals = data.shape[0]
     
-    return data, contours, properties, N_of_crystals, cnt_ellipse, cnt_rect
+    return data, image, contours, properties, N_of_crystals, cnt_ellipse, cnt_rect
                      
 def graphics(data, data_crystals):
     # 1: AR x Reynolds, hue = Type

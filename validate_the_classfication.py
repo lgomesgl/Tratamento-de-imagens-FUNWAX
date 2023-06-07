@@ -22,11 +22,26 @@ def get_image(folder_path ,file):
     return cv2.imread('%s/%s' % (folder_path, file))
 
 def validate(image, data):
-    '''
-        Open de image and validate
-    '''
-    
-    
+    for i in range(data.shape[0]):
+        img_crystal = image[int(data['cy'][i]): int(data['cy'][i]) + int(data['major'][i]), int(data['cx'][i]): int(data['cx'][i]) + int(data['minor'][i])]
+        # print(img_crystal)
+        cv2.imshow('Cristal', img_crystal)
+        cv2.waitKey(0)
+        
+        print('1-Crystal \n 2-None')
+        check = input()
+        
+        if check == ord('r'):
+            CrystalsClassification.return_()
+        
+        while check == ord('\n'):
+            if check == 1:
+                CrystalsClassification.validate_the_crystal()
+            elif check == 2:
+                CrystalsClassification.invalidate_the_crystal()
+                
+        CrystalsClassification.save()
+
 
 
 

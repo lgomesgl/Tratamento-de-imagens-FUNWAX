@@ -26,8 +26,8 @@ def filters(file):
     image = image[y:y+crop_size, x:x+crop_size]
     
     # 1 option:
-    cv2.imshow('Original image', image)
-    cv2.waitKey(0)
+    # cv2.imshow('Original image', image)
+    # cv2.waitKey(0)
     
     # filters
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -43,8 +43,8 @@ def filters(file):
     opening = cv2.morphologyEx(th_adap, cv2.MORPH_OPEN, kernel, iterations=1)
     
     # 2 option:
-    cv2.imshow('Filter image', opening)
-    cv2.waitKey(0)
+    # cv2.imshow('Filter image', opening)
+    # cv2.waitKey(0)
     
     # indentify the contours 
     '''

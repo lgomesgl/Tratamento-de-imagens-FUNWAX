@@ -78,7 +78,8 @@ def filters(file):
     cv2.imshow('Contours', image_cnt)
     cv2.waitKey(0)
     
-FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
+# FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
+FOLDER_PATH = '/home/lucas/FUNWAX/Images'
 files = os.listdir(FOLDER_PATH)
 for file in files:
     type = file[:-4].split('_')[1]

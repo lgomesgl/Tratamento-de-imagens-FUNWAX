@@ -26,14 +26,13 @@ def filters(file):
     image = image[y:y+crop_size, x:x+crop_size]
     
     # 1 option:
-    print(image.shape)
     cv2.imshow('Original image', image)
     cv2.waitKey(0)
     
     # filters
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # image = cv2.medianBlur(gray_image, 1) # !!!!!!!!!!!!!!
-    image_blur = cv2.GaussianBlur(gray_image, (1, 1), 0)
+    image_blur = cv2.GaussianBlur(gray_image, (3, 3), 0)
     # image_blur = cv2.blur(gray_image, (3, 3))
     # _, th = cv2.threshold(image_blur, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
     image_eq = cv2.equalizeHist(image_blur)
@@ -44,7 +43,6 @@ def filters(file):
     opening = cv2.morphologyEx(th_adap, cv2.MORPH_OPEN, kernel, iterations=1)
     
     # 2 option:
-    print(opening)
     cv2.imshow('Filter image', opening)
     cv2.waitKey(0)
     
@@ -77,10 +75,8 @@ def filters(file):
             image_cnt = cv2.drawContours(image_cnt, [box], 0, (0, 0, 255), 2)
       
     # 3 option:
-    print(image_cnt)
     cv2.imshow('Contours', image_cnt)
     cv2.waitKey(0)
-    
     
 FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
 files = os.listdir(FOLDER_PATH)

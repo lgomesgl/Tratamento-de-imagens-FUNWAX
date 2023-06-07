@@ -41,7 +41,7 @@ def database(file, data, cnt_ellipse, cnt_rect):
     if properties[1] == 'Macro':
         gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         # image = cv2.medianBlur(gray_image, 1) # !!!!!!!!!!!!!!
-        image_blur = cv2.GaussianBlur(gray_image, (3,3), 0)
+        image_blur = cv2.GaussianBlur(gray_image, (3, 3), 0)
         # _, th = cv2.threshold(image_blur, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
         image_eq = cv2.equalizeHist(image_blur)
         th_adap = cv2.adaptiveThreshold(image_eq, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
@@ -129,7 +129,7 @@ def database(file, data, cnt_ellipse, cnt_rect):
     N_of_crystals = data.shape[0]
     
     return data, properties, N_of_crystals, cnt_ellipse, cnt_rect
-       
+                     
 def graphics(data, data_crystals):
     # 1: AR x Reynolds, hue = Type
     plt.subplot(2, 2, 1)
@@ -182,26 +182,34 @@ def graphics(data, data_crystals):
     df_['Time'] = df_['Time'].astype(int)
     df_ = df_.sort_values('Time', ascending=True).reset_index(drop=True)
     sns.lineplot(df_, x=df_['Time'], y=df_['N_of_crystals'], hue=df_['Type'])
-    plt.title('AR x Time')
+    plt.title('N_of_crystals x Time')
     plt.show()
     
     # 9: Distribution of N_of_crystals
-    sns.histplot(data_crystals, x = data_crystals['N_of_crystals'], bins=100, kde=True, hue=data_crystals['Type'])
+    sns.histplot(data_crystals, x = data_crystals['N_of_crystals'], bins=15, kde=True, hue=data_crystals['Type'])
     plt.title('Distribuiton of N_of_crystals')
     plt.show()  
     
-    
+def save_the_data(data):
+    return data.to_csv(NAME_CSV_FILE, index=True)
+
+def exclude_the_data():
+    if os.path.isfile(FOLDER_PATH):
+        os.remove('%s\%s' %(FOLDER_PATH, NAME_CSV_FILE))
+        
 # FOLDER_PATH = '/home/lucas/FUNWAX/Images'
 FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
+NAME_CSV_FILE = 'Results.csv'
+
 data = pd.DataFrame(columns=['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'AR'])
 data_crystals = pd.DataFrame(columns=['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'N_of_crystals'])
 
 cnt_ellipse = 0
 cnt_rect = 0
-
 N_of_crystals_ = [0]
 
 files = os.listdir(FOLDER_PATH) # list with all files in folder
+exclude_the_data()
 for i, file in enumerate(files):
     if file.endswith('.jpg'): # take just the images
         data, properties, N_of_crystals, cnt_ellipse, cnt_rect = database(file, data, cnt_ellipse, cnt_rect)
@@ -209,6 +217,7 @@ for i, file in enumerate(files):
         N_of_crystals_.append(N_of_crystals)
         row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'N_of_crystals': int(N_of_crystals-N_of_crystals_[i])}])
         data_crystals = pd.concat([data_crystals, row_to_append], ignore_index=True)
+save_the_data(data)
         
 # print(data)
 graphics(data, data_crystals)

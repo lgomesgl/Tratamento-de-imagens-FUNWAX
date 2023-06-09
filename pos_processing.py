@@ -54,7 +54,7 @@ def graphics(data, data_crystals):
     sns.lineplot(x=df_3['Reynolds'], y=df_3['N_of_crystals'], hue=df_3['Tcool'])
     plt.title('N_of_crystals x Reynolds')
  
-    # 10: N_of_crystals x Time
+    # 9: N_of_crystals x Time
     df_4 = data_crystals.groupby(['Type','Time'], as_index=False)['N_of_crystals'].sum()
     plt.subplot(2, 2, 4)
     df_4['Time'] = df_4['Time'].astype(int)
@@ -63,7 +63,7 @@ def graphics(data, data_crystals):
     plt.title('N_of_crystals x Time')
     plt.show()
     
-    # # 9: Distribution of N_of_crystals
+    # # 10: Distribution of N_of_crystals
     # sns.histplot(data_crystals, x = data_crystals['N_of_crystals'].sum(), bins=15, kde=True, hue=data_crystals['Type'])
     # plt.title('Distribuiton of N_of_crystals')
     # plt.show()  

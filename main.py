@@ -29,14 +29,11 @@ for i, file in enumerate(files):
         # validate the classify
         n_of_crystals_.append(n_of_crystals)
         crystals_per_image = np.diff(n_of_crystals_)
-  
-        # N_of_crystals_diff.append(N_of_crystals - (N_of_crystals_[i]))
-        # image = get_image(FOLDER_PATH, NAME_CSV_FILE)
+        # image = get_image(FOLDER_PATH, file)
         # validate(image, data, crystals_per_image)  
            
-        # N_of_crystals_.append(N_of_crystals)
-        # row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'N_of_crystals': int(N_of_crystals-N_of_crystals_[i])}])
-        # data_crystals = pd.concat([data_crystals, row_to_append], ignore_index=True)
+        row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'N_of_crystals': int(n_of_crystals-n_of_crystals_[i])}])
+        data_crystals = pd.concat([data_crystals, row_to_append], ignore_index=True)
         
 save_the_data(data, NAME_CSV_FILE)
         

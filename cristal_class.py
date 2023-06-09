@@ -20,9 +20,3 @@ class CrystalsClassification:
     
     def return_(self):
         pass
-
-        
-    
-
-    
-    

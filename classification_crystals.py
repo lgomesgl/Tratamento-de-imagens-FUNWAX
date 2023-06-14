@@ -99,7 +99,7 @@ def classification(folder_path, file, data, cnt_ellipse, cnt_rect):
             data = pd.concat([data, row_to_append], ignore_index=True)
             
             cnt_ellipse += 1
-            
+        
             # draw the contours
             image = cv2.ellipse(image, ellipse[0], ellipse[1], ellipse[2], 0, 360, (0, 0, 255), 3)
             
@@ -136,7 +136,7 @@ def classification(folder_path, file, data, cnt_ellipse, cnt_rect):
     return data, image, contours, properties, n_of_crystals, cnt_ellipse, cnt_rect
                          
 def save_the_data(data, name_csv_file):
-    return data.to_csv(name_csv_file, index=True)
+    return data.to_csv('Results' % name_csv_file, index=True)
 
 def exclude_the_data(folder_path, name_csv_file):
     if os.path.isfile(folder_path):

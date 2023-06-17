@@ -32,3 +32,4 @@ Start to found the crystals using the library open-cv.
         8: N of crystals x Reynolds, hue = Tcool
         9: N of crystal x Time, hue = Type
 
+## Major & Minor is equal to zero. Why??

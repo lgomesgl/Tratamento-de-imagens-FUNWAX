@@ -1,5 +1,6 @@
 # Tratamento de imagens - FUNWAX
 
+## Classification folder
 This project have images with crystals. 
 Start to found the crystals using the library open-cv.
 
@@ -32,4 +33,4 @@ Start to found the crystals using the library open-cv.
         8: N of crystals x Reynolds, hue = Tcool
         9: N of crystal x Time, hue = Type
 
-## Major & Minor is equal to zero. Why??
+## Validation folder

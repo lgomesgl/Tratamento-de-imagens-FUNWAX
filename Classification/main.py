@@ -5,13 +5,8 @@ import os
 from classification_crystals import classification, exclude_the_data, save_the_data
 from pos_processing import graphics
 
-<<<<<<< HEAD:Classification/main.py
 # FOLDER_PATH = '/home/lucas/FUNWAX/Images' ## linux path
 FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
-=======
-FOLDER_PATH = '/home/lucas/FUNWAX/Images'
-# FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
->>>>>>> e6993fd43c1e3b2fd3d5ad0c28bf1cb4b59f6133:main.py
 NAME_CSV_FILE = 'Results.csv'
 
 # DataFrames
@@ -36,16 +31,10 @@ for i, file in enumerate(files):
         n_of_crystals_.append(n_of_crystals)
         crystals_per_image = np.diff(n_of_crystals_)
 
-<<<<<<< HEAD:Classification/main.py
-=======
-        # image = get_image(FOLDER_PATH, file)
-        # validate(image, data, crystals_per_image)  
-           
->>>>>>> e6993fd43c1e3b2fd3d5ad0c28bf1cb4b59f6133:main.py
         row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'N_of_crystals': int(n_of_crystals-n_of_crystals_[i])}])
         data_crystals = pd.concat([data_crystals, row_to_append], ignore_index=True)
         
-# save_the_data(data, NAME_CSV_FILE)
+save_the_data(data, NAME_CSV_FILE)
         
 # print(data)
 graphics(data, data_crystals)

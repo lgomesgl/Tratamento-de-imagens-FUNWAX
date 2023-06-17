@@ -22,18 +22,4 @@ class CrystalsClassification:
         pass
 
             
-# while True:
-#     check = input()
-#     crystal = CrystalsClassification()
-    
-#     if check == 'opa':
-#         crystal.save()
-#         break
-    
-#     elif check == 1:
-#         crystal.validate_the_crystal()
-        
-#     elif check == 2:
-#         crystal.invalidate_the_crystal()
-        
                

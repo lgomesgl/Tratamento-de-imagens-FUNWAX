@@ -30,7 +30,7 @@ def get_properties(file):
     properties = file[:-4].split('_')
     return properties
 
-def filter(image, properties):
+def filter(image, properties, kernel):
     # verify if the color of the image
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     mean = cv2.mean(gray)[0]
@@ -41,14 +41,14 @@ def filter(image, properties):
     if properties[1] == 'Macro':
         gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         # image = cv2.medianBlur(gray_image, 1) # !!!!!!!!!!!!!!
-        image_blur = cv2.GaussianBlur(gray_image, (3, 3), 0)
+        image_blur = cv2.GaussianBlur(gray_image, kernel, 0)
         # _, th = cv2.threshold(image_blur, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
         image_eq = cv2.equalizeHist(image_blur)
         th_adap = cv2.adaptiveThreshold(image_eq, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
 
         # Apply aperture morphological filter
-        kernel = np.ones((5, 5),np.uint8)
-        opening = cv2.morphologyEx(th_adap, cv2.MORPH_OPEN, kernel, iterations=1)
+        kernel_ = np.ones((5, 5),np.uint8)
+        opening = cv2.morphologyEx(th_adap, cv2.MORPH_OPEN, kernel_, iterations=1)
         # cv2.imshow('teste', opening)
         # cv2.waitKey(0)
         
@@ -61,14 +61,14 @@ def filter(image, properties):
     elif properties[1] == 'Micro':
         gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         # image = cv2.medianBlur(gray_image, 1) # !!!!!!!!!!!!!!
-        image_blur = cv2.GaussianBlur(gray_image, (1, 1), 0)
+        image_blur = cv2.GaussianBlur(gray_image, kernel, 0)
         # _, th = cv2.threshold(image_blur, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
         image_eq = cv2.equalizeHist(image_blur)
         th_adap = cv2.adaptiveThreshold(image_eq, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
 
         # Apply aperture morphological filter
-        kernel = np.ones((5, 5),np.uint8)
-        opening = cv2.morphologyEx(th_adap, cv2.MORPH_OPEN, kernel, iterations=1)
+        kernel_ = np.ones((5, 5),np.uint8)
+        opening = cv2.morphologyEx(th_adap, cv2.MORPH_OPEN, kernel_, iterations=1)
         # cv2.imshow('teste', opening)
         # cv2.waitKey(0)
         
@@ -80,7 +80,7 @@ def filter(image, properties):
 
     return contours
 
-def classification(image, data, contours, properties, cnt_ellipse, cnt_rect):
+def classification(image, data, contours, properties, cnt_ellipse, cnt_rect, kernel):
     # calculate AR
     for cnt in contours:
         '''
@@ -98,7 +98,7 @@ def classification(image, data, contours, properties, cnt_ellipse, cnt_rect):
             angle = ellipse[2]
             ar = major/minor
             
-            row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'cx': cx, 'cy': cy, 'major': major, 'minor': minor, 'angle':angle, 'AR': ar}])
+            row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'cx': cx, 'cy': cy, 'major': major, 'minor': minor, 'angle':angle, 'kernel': kernel,'AR': ar}])
             data = pd.concat([data, row_to_append], ignore_index=True)
             # data = row_to_append(data, ['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'cx', 'cy', 'major', 'minor', 'angle', 'AR'], 
             #               [properties[1], properties[3], properties[4], properties[5], properties[6], cx, cy, major, minor, angle, ar])
@@ -124,7 +124,7 @@ def classification(image, data, contours, properties, cnt_ellipse, cnt_rect):
             angle = rect[2]
             ar = major/minor
             
-            row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'cx': cx, 'cy': cy, 'major': major, 'minor': minor, 'angle':angle, 'AR': ar}])
+            row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'cx': cx, 'cy': cy, 'major': major, 'minor': minor, 'angle':angle, 'kernel': kernel,'AR': ar}])
             data = pd.concat([data, row_to_append], ignore_index=True)
             
             # row_to_append(data, ['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'cx', 'cy', 'major', 'minor', 'angle', 'AR'], 

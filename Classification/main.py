@@ -1,17 +1,15 @@
-import pandas as pd
-import numpy as np
 import os
 
-from classification_crystals import get_properties, get_image, crop_the_image, filter, classification, exclude_the_data, save_the_data
+from data import create_dataframes, save_the_data, exclude_the_data
+from classification_crystals import get_properties, get_image, crop_the_image, filter, classification
 from pos_processing import graphics
 
 # FOLDER_PATH = '/home/lucas/FUNWAX/Images' ## linux path
 FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
 NAME_CSV_FILE = 'Results.csv'
 
-# DataFrames
-data = pd.DataFrame(columns=['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'cx', 'cy', 'major', 'minor', 'angle', 'AR'])
-data_crystals = pd.DataFrame(columns=['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'N_of_crystals'])
+data = create_dataframes(['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'cx', 'cy', 'major', 'minor', 'angle', 'AR'])
+data_crystals = create_dataframes(['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'N_of_crystals'])
 
 cnt_ellipse = 0
 cnt_rect = 0
@@ -27,8 +25,8 @@ for i, file in enumerate(files):
     contours = filter(image, properties)
     data, image, contours, properties, n_of_crystals, cnt_ellipse, cnt_rect = classification(image, data, contours, properties, cnt_ellipse, cnt_rect)
 
-    row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'N_of_crystals': int(n_of_crystals-n_of_crystals_[i])}])
-    data_crystals = pd.concat([data_crystals, row_to_append], ignore_index=True)
+    # row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'N_of_crystals': int(n_of_crystals-n_of_crystals_[i])}])
+    # data_crystals = pd.concat([data_crystals, row_to_append], ignore_index=True)
     
     print('%s...Ok' % file)
 

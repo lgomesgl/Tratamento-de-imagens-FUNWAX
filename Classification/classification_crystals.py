@@ -2,8 +2,6 @@
 import numpy as np
 import pandas as pd
 import cv2
-import matplotlib.pyplot as plt
-import seaborn as sns
 import os 
 
 def get_image(folder_path, file):
@@ -138,10 +136,4 @@ def classification(image, data, contours, properties, cnt_ellipse, cnt_rect):
     
     return data, image, contours, properties, n_of_crystals, cnt_ellipse, cnt_rect
                          
-def save_the_data(data, name_csv_file):
-    return data.to_csv('Results' % name_csv_file, index=True)
-
-def exclude_the_data(folder_path, name_csv_file):
-    if os.path.isfile(folder_path):
-        os.remove('%s\%s' %(folder_path, name_csv_file))
         

@@ -1,6 +1,7 @@
+import pandas as pd
 import os
 
-from data import create_dataframes, save_the_data, exclude_the_data
+from data import create_dataframes, row_to_append, save_the_data, exclude_the_data
 from classification_crystals import get_properties, get_image, crop_the_image, filter, classification
 from pos_processing import graphics
 
@@ -23,10 +24,14 @@ for i, file in enumerate(files):
     image = get_image(FOLDER_PATH, file)
     image = crop_the_image(image, 0.4)
     contours = filter(image, properties)
-    data, image, contours, properties, n_of_crystals, cnt_ellipse, cnt_rect = classification(image, data, contours, properties, cnt_ellipse, cnt_rect)
+    data, image, contours, n_of_crystals, cnt_ellipse, cnt_rect = classification(image, data, contours, properties, cnt_ellipse, cnt_rect)
 
-    # row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'N_of_crystals': int(n_of_crystals-n_of_crystals_[i])}])
-    # data_crystals = pd.concat([data_crystals, row_to_append], ignore_index=True)
+    n_of_crystals_.append(n_of_crystals)
+    row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'N_of_crystals': int(n_of_crystals-n_of_crystals_[i])}])
+    data_crystals = pd.concat([data_crystals, row_to_append], ignore_index=True)
+    
+    # data_crystals = row_to_append(data_crystals, ['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'N_of_crystals'],
+    #                               [properties[1], properties[3], properties[4], properties[5], properties[6], (n_of_crystals - n_of_crystals_[i])])
     
     print('%s...Ok' % file)
 

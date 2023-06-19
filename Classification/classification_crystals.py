@@ -4,6 +4,8 @@ import pandas as pd
 import cv2
 import os 
 
+from data import row_to_append
+
 def get_image(folder_path, file):
     return cv2.imread('%s/%s' % (folder_path, file))
 
@@ -98,6 +100,8 @@ def classification(image, data, contours, properties, cnt_ellipse, cnt_rect):
             
             row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'cx': cx, 'cy': cy, 'major': major, 'minor': minor, 'angle':angle, 'AR': ar}])
             data = pd.concat([data, row_to_append], ignore_index=True)
+            # data = row_to_append(data, ['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'cx', 'cy', 'major', 'minor', 'angle', 'AR'], 
+            #               [properties[1], properties[3], properties[4], properties[5], properties[6], cx, cy, major, minor, angle, ar])
             
             cnt_ellipse += 1
         
@@ -123,6 +127,9 @@ def classification(image, data, contours, properties, cnt_ellipse, cnt_rect):
             row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'cx': cx, 'cy': cy, 'major': major, 'minor': minor, 'angle':angle, 'AR': ar}])
             data = pd.concat([data, row_to_append], ignore_index=True)
             
+            # row_to_append(data, ['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'cx', 'cy', 'major', 'minor', 'angle', 'AR'], 
+            #               [properties[1], properties[3], properties[4], properties[5], properties[6], cx, cy, major, minor, angle, ar])
+            
             cnt_rect += 1
             
             #draw the contours
@@ -134,6 +141,6 @@ def classification(image, data, contours, properties, cnt_ellipse, cnt_rect):
     
     n_of_crystals = data.shape[0]
     
-    return data, image, contours, properties, n_of_crystals, cnt_ellipse, cnt_rect
+    return data, image, contours, n_of_crystals, cnt_ellipse, cnt_rect
                          
         

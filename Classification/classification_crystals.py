@@ -6,10 +6,18 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os 
 
-# create the database
-def classification(folder_path, file, data, cnt_ellipse, cnt_rect):    
-    # properties
-    properties = file[:-4].split('_')
+def get_image(folder_path, file):
+    return cv2.imread('%s/%s' % (folder_path, file))
+
+def crop_the_image(image, scale_crop):
+    height, width,_ = image.shape
+    crop_size = int(min(height, width) * scale_crop)
+    x = int((width - crop_size) / 2)
+    y = int((height - crop_size) / 2)
+    image = image[y:y+crop_size, x:x+crop_size]
+    return image
+
+def get_properties(file):
     '''
         properties[0] -> Number of the teste
             ''    [1] -> Type(Macro, Micro, Mist)
@@ -19,29 +27,21 @@ def classification(folder_path, file, data, cnt_ellipse, cnt_rect):
             ''    [5] -> Tcool
             ''    [6] -> Time
     '''
-    
-    # get the contours(Leticia code)
-    # read the image
-    image = cv2.imread('%s/%s' % (folder_path, file))
-    
+    properties = file[:-4].split('_')
+    return properties
+
+def filter(image, properties):
     # verify if the color of the image
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     mean = cv2.mean(gray)[0]
     if mean < 127:
         image = cv2.bitwise_not(image)
-        
-    # crop the image
-    height, width,_ = image.shape
-    crop_size = int(min(height, width) * 0.40)
-    x = int((width - crop_size) / 2)
-    y = int((height - crop_size) / 2)
-    image = image[y:y+crop_size, x:x+crop_size]
-    
+
     # filters
     if properties[1] == 'Macro':
         gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         # image = cv2.medianBlur(gray_image, 1) # !!!!!!!!!!!!!!
-        image_blur = cv2.GaussianBlur(gray_image, (1, 1), 0)
+        image_blur = cv2.GaussianBlur(gray_image, (3, 3), 0)
         # _, th = cv2.threshold(image_blur, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
         image_eq = cv2.equalizeHist(image_blur)
         th_adap = cv2.adaptiveThreshold(image_eq, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
@@ -77,7 +77,10 @@ def classification(folder_path, file, data, cnt_ellipse, cnt_rect):
             try to find the best image for input in cv2.findCountours
         '''
         contours, hierarchy = cv2.findContours(opening, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-              
+
+    return contours
+
+def classification(image, data, contours, properties, cnt_ellipse, cnt_rect):
     # calculate AR
     for cnt in contours:
         '''

@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 
-from classification_crystals import classification, exclude_the_data, save_the_data
+from classification_crystals import get_properties, get_image, crop_the_image, filter, classification, exclude_the_data, save_the_data
 from pos_processing import graphics
 
 # FOLDER_PATH = '/home/lucas/FUNWAX/Images' ## linux path
@@ -18,24 +18,22 @@ cnt_rect = 0
 n_of_crystals_ = [0]
 
 exclude_the_data(FOLDER_PATH, NAME_CSV_FILE) # exclude the data to update the csv file
-
+        
 files = os.listdir(FOLDER_PATH) # list with all files in folder
 for i, file in enumerate(files):
-    if file.endswith('.jpg'): # take just the images
-        
-        # classification
-        data, image, contours, properties, n_of_crystals, cnt_ellipse, cnt_rect = classification(FOLDER_PATH, file, data, cnt_ellipse, cnt_rect)
-        print('%s...OK' % file)
-        
-        # validate the classify
-        n_of_crystals_.append(n_of_crystals)
-        crystals_per_image = np.diff(n_of_crystals_)
+    properties = get_properties(file)
+    image = get_image(FOLDER_PATH, file)
+    image = crop_the_image(image, 0.4)
+    contours = filter(image, properties)
+    data, image, contours, properties, n_of_crystals, cnt_ellipse, cnt_rect = classification(image, data, contours, properties, cnt_ellipse, cnt_rect)
 
-        row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'N_of_crystals': int(n_of_crystals-n_of_crystals_[i])}])
-        data_crystals = pd.concat([data_crystals, row_to_append], ignore_index=True)
-        
-save_the_data(data, NAME_CSV_FILE)
-        
+    row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'N_of_crystals': int(n_of_crystals-n_of_crystals_[i])}])
+    data_crystals = pd.concat([data_crystals, row_to_append], ignore_index=True)
+    
+    print('%s...Ok' % file)
+
+# save_the_data(data, NAME_CSV_FILE)
+
 # print(data)
 graphics(data, data_crystals)
 

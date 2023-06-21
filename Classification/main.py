@@ -24,6 +24,7 @@ for i, file in enumerate(files):
     properties = get_properties(file)
     image = get_image(FOLDER_PATH, file)
     image = crop_the_image(image, 0.4)
+    
     for kernel in kernels:
         contours = filter(image, properties, kernel)
         data, image, contours, n_of_crystals, cnt_ellipse, cnt_rect = classification(image, data, contours, properties, cnt_ellipse, cnt_rect, kernel)
@@ -34,16 +35,20 @@ for i, file in enumerate(files):
     
     # data_crystals = row_to_append(data_crystals, ['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'N_of_crystals'],
     #                               [properties[1], properties[3], properties[4], properties[5], properties[6], (n_of_crystals - n_of_crystals_[i])])
-    # print(data) 
+    
     print('%s...Ok' % file)
-
-# save_the_data(data, NAME_CSV_FILE)
+    
+save_the_data(data, NAME_CSV_FILE) # update the data
 
 dataframes = separate_the_data_by_column(data, 'kernel')
+'''
+    dataframes name -> 'df_' + 'value filter'
+    ex: by kernel -> df_(1, 1) & df_(3, 3)
+'''
 
 # print(data)
-graphics(dataframes['df_1'], data_crystals)
-graphics(dataframes['df_2'], data_crystals)
+graphics(dataframes['df_(1, 1)'], data_crystals)
+graphics(dataframes['df_(3, 3)'], data_crystals)
 
 # print('AR calculate by ellipse: %s' % cnt_ellipse)
 # print('AR calculate by rectangle: %s' % cnt_rect)

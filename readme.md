@@ -8,7 +8,6 @@ Start to found the crystals using the library open-cv.
     * AR: Aspect ratio of crystal
     * Reynolds: Reynolds Number
     * Type: Type of crystal
-    * 
 
 # main.py
     * Input: the folder path of the images. 

@@ -18,12 +18,12 @@ def filters(file):
     if mean < 127:
         image = cv2.bitwise_not(image)
         
-    # crop the image
-    height, width,_ = image.shape
-    crop_size = int(min(height, width) * 0.40)
-    x = int((width - crop_size) / 2)
-    y = int((height - crop_size) / 2)
-    image = image[y:y+crop_size, x:x+crop_size]
+    # # crop the image
+    # height, width,_ = image.shape
+    # crop_size = int(min(height, width) * 0.40)
+    # x = int((width - crop_size) / 2)
+    # y = int((height - crop_size) / 2)
+    # image = image[y:y+crop_size, x:x+crop_size]
     
     # 1 option:
     cv2.imshow('Original image', image)
@@ -78,10 +78,13 @@ def filters(file):
     cv2.imshow('Contours', image_cnt)
     cv2.waitKey(0)
     
-# FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
-FOLDER_PATH = '/home/lucas/FUNWAX/Images'
-files = os.listdir(FOLDER_PATH)
-for file in files:
-    type = file[:-4].split('_')[1]
-    if file.endswith('.jpg') and type == 'Micro':
-        filters(file)
+FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
+# FOLDER_PATH = '/home/lucas/FUNWAX/Images'
+# files = os.listdir(FOLDER_PATH)
+# for file in files:
+#     type = file[:-4].split('_')[1]
+#     if file.endswith('.jpg') and type == 'Micro':
+#         filters(file)
+
+file ='1_Micro_10_5000_47_6_58_island.jpg'
+filters(file)

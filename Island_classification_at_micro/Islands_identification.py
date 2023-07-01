@@ -48,10 +48,9 @@ def crop_the_island(image):
     
 # Path 
 FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
-file = '1_Micro_10_5000_47_6_58.jpg'
-# for file in os.listdir(FOLDER_PATH):
-
-if get_properties(file)[1] == 'Micro' and check_if_image_island_exists(FOLDER_PATH, file) is False: 
-    image = get_image(file)
-    island_image = crop_the_island(image)
-    save_the_image(FOLDER_PATH, file, island_image)
+# file = '1_Micro_10_5000_47_6_58.jpg'
+for file in os.listdir(FOLDER_PATH):
+    if get_properties(file)[1] == 'Micro' and len(get_properties(file)) != 8 and check_if_image_island_exists(FOLDER_PATH, file) is False: 
+        image = get_image(file)
+        island_image = crop_the_island(image)
+        save_the_image(FOLDER_PATH, file, island_image)

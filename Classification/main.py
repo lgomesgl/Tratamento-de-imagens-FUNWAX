@@ -23,7 +23,9 @@ files = os.listdir(FOLDER_PATH) # list with all files in folder
 for i, file in enumerate(files):
     properties = get_properties(file)
     image = get_image(FOLDER_PATH, file)
-    image = crop_the_image(image, 0.4)
+    
+    if properties[1] == 'Macro':
+        image = crop_the_image(image, 0.4)
     
     for kernel in kernels:
         contours = filter(image, properties, kernel)

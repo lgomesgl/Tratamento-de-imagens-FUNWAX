@@ -26,6 +26,7 @@ def get_properties(file):
             ''    [4] -> Toil
             ''    [5] -> Tcool
             ''    [6] -> Time
+            ''    [7] -> Island, only Micro
     '''
     properties = file[:-4].split('_')
     return properties

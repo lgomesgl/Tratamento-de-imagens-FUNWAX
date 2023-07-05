@@ -1,3 +1,8 @@
+'''
+    We start the project cropping the raw image in the center. But we noticed that micro type images
+    have a different tendency in crystal formation. So we decide to create a low level filter to identify these formations(we called island),
+    to correctly classify the crystals.
+'''
 import cv2
 import os
 
@@ -16,6 +21,11 @@ def check_if_image_island_exists(folder_path, file):
 def get_properties(file):
     properties = file[:-4].split('_')
     return properties
+
+def image_island(properties):
+    if len(properties) == 8:
+        return True
+    return False
 
 def crop_the_island(image):
     # Converte para escala de cinza
@@ -48,9 +58,8 @@ def crop_the_island(image):
     
 # Path 
 FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
-# file = '1_Micro_10_5000_47_6_58.jpg'
 for file in os.listdir(FOLDER_PATH):
-    if get_properties(file)[1] == 'Micro' and len(get_properties(file)) != 8 and check_if_image_island_exists(FOLDER_PATH, file) is False: 
+    if get_properties(file)[1] == 'Micro' and (image_island(get_properties(file)) is False) and (check_if_image_island_exists(FOLDER_PATH, file) is False): 
         image = get_image(file)
         island_image = crop_the_island(image)
         save_the_image(FOLDER_PATH, file, island_image)

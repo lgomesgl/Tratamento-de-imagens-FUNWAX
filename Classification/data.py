@@ -10,7 +10,7 @@ def save_the_data(data, name_csv_file):
 
 def exclude_the_data(folder_path, name_csv_file):
     if os.path.isfile(folder_path):
-        os.remove('%s\%s' % (folder_path, name_csv_file))
+        os.remove('%s/%s' % (folder_path, name_csv_file))
         
 def separate_the_data_by_column(data, column):
     values = data[column].unique()

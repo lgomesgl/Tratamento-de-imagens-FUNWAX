@@ -4,8 +4,6 @@ import pandas as pd
 import cv2
 import os 
 
-from data import row_to_append
-
 def get_image(folder_path, file):
     return cv2.imread('%s/%s' % (folder_path, file))
 
@@ -33,55 +31,55 @@ def get_properties(file):
 
 def filter(image, properties, kernel):
     # verify if the color of the image
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    mean = cv2.mean(gray)[0]
-    if mean < 127:
-        image = cv2.bitwise_not(image)
+    # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # mean = cv2.mean(gray)[0]
+    # if mean < 127:
+    #     image = cv2.bitwise_not(image)
 
     # filters
-    if properties[1] == 'Macro':
-        gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        # image = cv2.medianBlur(gray_image, 1) # !!!!!!!!!!!!!!
-        image_blur = cv2.GaussianBlur(gray_image, kernel, 0)
-        # _, th = cv2.threshold(image_blur, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-        image_eq = cv2.equalizeHist(image_blur)
-        th_adap = cv2.adaptiveThreshold(image_eq, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
+    # if properties[1] == 'Macro':
+    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # image = cv2.medianBlur(gray_image, 1) # !!!!!!!!!!!!!!
+    image_blur = cv2.GaussianBlur(gray_image, kernel, 0)
+    # _, th = cv2.threshold(image_blur, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+    image_eq = cv2.equalizeHist(image_blur)
+    th_adap = cv2.adaptiveThreshold(image_eq, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
 
-        # Apply aperture morphological filter
-        kernel_ = np.ones((5, 5),np.uint8)
-        opening = cv2.morphologyEx(th_adap, cv2.MORPH_OPEN, kernel_, iterations=1)
-        # cv2.imshow('teste', opening)
-        # cv2.waitKey(0)
-        
-        # indentify the contours 
-        '''
-            try to find the best image for input in cv2.findCountours
-        '''
-        contours, hierarchy = cv2.findContours(opening, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    # Apply aperture morphological filter
+    kernel_ = np.ones((5, 5),np.uint8)
+    opening = cv2.morphologyEx(th_adap, cv2.MORPH_OPEN, kernel_, iterations=1)
+    # cv2.imshow('teste', opening)
+    # cv2.waitKey(0)
+    
+    # indentify the contours 
+    '''
+        try to find the best image for input in cv2.findCountours
+    '''
+    contours, hierarchy = cv2.findContours(opening, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
            
-    elif properties[1] == 'Micro':
-        gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        # image = cv2.medianBlur(gray_image, 1) # !!!!!!!!!!!!!!
-        image_blur = cv2.GaussianBlur(gray_image, kernel, 0)
-        # _, th = cv2.threshold(image_blur, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-        image_eq = cv2.equalizeHist(image_blur)
-        th_adap = cv2.adaptiveThreshold(image_eq, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
+    # elif properties[1] == 'Micro':
+    #     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    #     # image = cv2.medianBlur(gray_image, 1) # !!!!!!!!!!!!!!
+    #     image_blur = cv2.GaussianBlur(gray_image, kernel, 0)
+    #     # _, th = cv2.threshold(image_blur, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+    #     image_eq = cv2.equalizeHist(image_blur)
+    #     th_adap = cv2.adaptiveThreshold(image_eq, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
 
-        # Apply aperture morphological filter
-        kernel_ = np.ones((5, 5),np.uint8)
-        opening = cv2.morphologyEx(th_adap, cv2.MORPH_OPEN, kernel_, iterations=1)
-        # cv2.imshow('teste', opening)
-        # cv2.waitKey(0)
+    #     # Apply aperture morphological filter
+    #     kernel_ = np.ones((5, 5),np.uint8)
+    #     opening = cv2.morphologyEx(th_adap, cv2.MORPH_OPEN, kernel_, iterations=1)
+    #     # cv2.imshow('teste', opening)
+    #     # cv2.waitKey(0)
         
-        # indentify the contours 
-        '''
-            try to find the best image for input in cv2.findCountours
-        '''
-        contours, hierarchy = cv2.findContours(opening, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    #     # indentify the contours 
+    #     '''
+    #         try to find the best image for input in cv2.findCountours
+    #     '''
+    #     contours, hierarchy = cv2.findContours(opening, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
     return contours
 
-def classification(image, data, contours, properties, cnt_ellipse, cnt_rect, kernel):
+def classification(image, data, contours, properties, kernel):
     # calculate AR
     for cnt in contours:
         '''
@@ -104,8 +102,6 @@ def classification(image, data, contours, properties, cnt_ellipse, cnt_rect, ker
             # data = row_to_append(data, ['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'cx', 'cy', 'major', 'minor', 'angle', 'AR'], 
             #               [properties[1], properties[3], properties[4], properties[5], properties[6], cx, cy, major, minor, angle, ar])
             
-            cnt_ellipse += 1
-        
             # draw the contours
             image = cv2.ellipse(image, ellipse[0], ellipse[1], ellipse[2], 0, 360, (0, 0, 255), 3)
             
@@ -131,17 +127,20 @@ def classification(image, data, contours, properties, cnt_ellipse, cnt_rect, ker
             # row_to_append(data, ['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'cx', 'cy', 'major', 'minor', 'angle', 'AR'], 
             #               [properties[1], properties[3], properties[4], properties[5], properties[6], cx, cy, major, minor, angle, ar])
             
-            cnt_rect += 1
-            
             #draw the contours
             image = cv2.drawContours(image, [box], 0, (0, 0, 255), 2)
       
     # validate the contours
     # cv2.imshow('Cristais', image)
     # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
     
     n_of_crystals = data.shape[0]
     
-    return data, image, contours, n_of_crystals, cnt_ellipse, cnt_rect
+    return data, n_of_crystals
                          
-        
+def crystals_stage(properties):
+    if properties[6] < 7: 
+        return 'initial'
+    return 'developed'
+    

@@ -1,13 +1,14 @@
 import pandas as pd
 import os
 
-from data import create_dataframes, separate_the_data_by_column, save_the_data, exclude_the_data
-from classification_crystals import get_properties, get_image, crop_the_image, filter, classification
-from pos_processing import graphics
+from Classification.data import create_dataframes, separate_the_data_by_column, save_the_data, exclude_the_data
+from Classification.classification_crystals import get_properties, get_image, crop_the_image, filter, classification
+from Classification.pos_processing import graphics
+
 # from ..Island_classification_at_micro.Islands_identification import main_island, image_island
 
-FOLDER_PATH = '/home/lucas/FUNWAX/Images' ## linux path
-# FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
+# FOLDER_PATH = '/home/lucas/FUNWAX/Images' ## linux path
+FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
 NAME_CSV_FILE = 'Results_crystals.csv'
 
 data = create_dataframes(['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'cx', 'cy', 'major', 'minor', 'angle', 'kernel', 'AR'])

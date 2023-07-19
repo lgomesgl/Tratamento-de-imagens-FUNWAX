@@ -7,8 +7,8 @@ import cv2
 import os
 
 # lê imagem
-def get_image(file):
-    return cv2.imread('%s/%s' % (FOLDER_PATH, file))
+def get_image(folder_path, file):
+    return cv2.imread('%s/%s' % (folder_path, file))
 
 def save_the_image(folder_path, filename, image):
     return cv2.imwrite(os.path.join(folder_path, '%s_island.jpg' % filename[:-4]), image)
@@ -55,11 +55,12 @@ def crop_the_island(image):
     # cv2.destroyAllWindows()
     
     return cropped_image
-    
-# Path 
-FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
-for file in os.listdir(FOLDER_PATH):
-    if get_properties(file)[1] == 'Micro' and (image_island(get_properties(file)) is False) and (check_if_image_island_exists(FOLDER_PATH, file) is False): 
-        image = get_image(file)
-        island_image = crop_the_island(image)
-        save_the_image(FOLDER_PATH, file, island_image)
+
+def main_island(folder_path):  
+    print('---------------NEW IMAGES---------------')
+    for file in os.listdir(folder_path):
+        if get_properties(file)[1] == 'Micro' and (image_island(get_properties(file)) is False) and (check_if_image_island_exists(folder_path, file) is False): 
+            image = get_image(folder_path, file)
+            island_image = crop_the_island(image)
+            save_the_image(folder_path, file, island_image)
+            print('%s_island.jpg' % file)

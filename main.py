@@ -1,29 +1,35 @@
 import pandas as pd
 import os
 
+from Island_classification_at_micro.island_crop import main_island
 from Classification.data import create_dataframes, separate_the_data_by_column, save_the_data, exclude_the_data
-from Classification.classification_crystals import get_properties, get_image, crop_the_image, filter, classification
+from Classification.classification_crystals import get_properties, get_image, crop_the_image, filter, classification, images_to_verify
 from Classification.pos_processing import graphics
 
-# from ..Island_classification_at_micro.Islands_identification import main_island, image_island
-
+#Path's
 # FOLDER_PATH = '/home/lucas/FUNWAX/Images' ## linux path
 FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
 NAME_CSV_FILE = 'Results_crystals.csv'
 
+# Variables
 data = create_dataframes(['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'cx', 'cy', 'major', 'minor', 'angle', 'kernel', 'AR'])
 data_crystals = create_dataframes(['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'N_of_crystals'])
 
 n_of_crystals_ = [0]
 kernels = [(1, 1), (3, 3)]
 
+# Code
 exclude_the_data(FOLDER_PATH, NAME_CSV_FILE) # exclude the data to update the csv file
         
+print('Start to crop the island at micro images')   
+main_island(FOLDER_PATH) # crop the island  
+        
+print('Start to classify the crystals')
 files = os.listdir(FOLDER_PATH) # list with all files in folder
 for i, file in enumerate(files):
     properties = get_properties(file)
     
-    if properties[1] == 'Macro' or (properties[1] == 'Micro' and len(properties) == 8):
+    if images_to_verify(properties):
         image = get_image(FOLDER_PATH, file)
         
         if properties[1] == 'Macro':
@@ -41,12 +47,11 @@ for i, file in enumerate(files):
     
 save_the_data(data, NAME_CSV_FILE) # update the data
 
+dataframes = separate_the_data_by_column(data, 'kernel')
 '''
     dataframes name -> 'df_' + 'value filter'
     ex: by kernel -> df_(1, 1) & df_(3, 3)
 '''
-dataframes = separate_the_data_by_column(data, 'kernel')
 
-# print(data)
 graphics(dataframes['df_(1, 1)'])
 graphics(dataframes['df_(3, 3)'])

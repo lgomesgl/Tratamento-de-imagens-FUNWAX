@@ -143,4 +143,9 @@ def crystals_stage(properties):
     if properties[6] < 7: 
         return 'initial'
     return 'developed'
+
+def images_to_verify(properties):
+    if properties[1] == 'Macro' or (properties[1] == 'Micro' and len(properties) == 8):
+        return True
+    return False
     

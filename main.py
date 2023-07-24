@@ -1,9 +1,6 @@
-import pandas as pd
-import os
-
 from Island_classification_at_micro.island_crop import main_island
 from Classification.data import create_dataframes, separate_the_data_by_column, save_the_data, exclude_the_data
-from Classification.classification_crystals import get_properties, get_image, crop_the_image, filter, classification, images_to_verify
+from Classification.classification_crystals import get_properties, get_image, crop_the_image, filter, classification, images_to_verify, get_files
 from Classification.pos_processing import graphics
 
 #Path's
@@ -23,7 +20,7 @@ print('Start to crop the island at micro images')
 main_island(FOLDER_PATH) # crop the island  
         
 print('Start to classify the crystals')
-files = os.listdir(FOLDER_PATH) # list with all files in folder
+files = get_files(FOLDER_PATH)# list with all files in folder
 for i, file in enumerate(files):
     properties = get_properties(file)
     

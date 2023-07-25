@@ -13,6 +13,11 @@ def exclude_the_data(folder_path, name_csv_file):
         os.remove('%s/%s' % (folder_path, name_csv_file))
         
 def separate_the_data_by_column(data, column):
+    '''
+    dataframes name -> 'df_' + 'value filter'
+    ex: by kernel -> df_(1, 1) & df_(3, 3)
+    '''
+    
     values = data[column].unique()
     dataframes = {}
     for i in range(len(values)):
@@ -25,3 +30,10 @@ def row_to_append(dataframe, columns, values):
         dict[column] = values[i]
     row_to_append = pd.DataFrame([dict])
     return pd.concat([dataframe, row_to_append], ignore_index=True)
+
+def data_n_of_crystals(data_crystals, properties, n_of_crystals_):
+    n_of_crystals_per_image = np.diff(n_of_crystals_)
+    
+    row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'N_of_crystals': n_of_crystals_per_image[-1]}])
+    data_crystals = pd.concat([data_crystals, row_to_append], ignore_index=True)
+    return data_crystals

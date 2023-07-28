@@ -10,12 +10,14 @@ NAME_CSV_DATA = 'Results_crystals.csv'
 NAME_CSV_DATA_CRYSTALS = 'Results_number_of_crystals.csv'
 
 def main(island, scale_crop):
+    # Datas
     data = create_dataframes(['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'cx', 'cy', 'major', 'minor', 'angle', 'AR'])
     data_crystals = create_dataframes(['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'N_of_crystals'])
     n_of_crystals_ = [0]
 
-    # Code        
-    main_island(FOLDER_PATH) # crop the island from micro type images
+    # Code    
+    if island:    
+        main_island(FOLDER_PATH) # crop the island from micro type images
             
     print('Start to classify the crystals')
     files = get_files(FOLDER_PATH)# list with all files in folder
@@ -42,5 +44,7 @@ def main(island, scale_crop):
     # dataframes = separate_the_data_by_column(data, 'kernel')
 
     graphics(data, data_crystals)
+    
+    return data, data_crystals
 
-main(island=True, scale_crop=0.5)
+data, data_crystals = main(island=False, scale_crop=0.5)

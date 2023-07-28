@@ -68,5 +68,5 @@ def main_island(folder_path):
             print('%s_island.jpg' % file)
             counter_new_images += 1
     if counter_new_images == 0:
-        print('All micro images has croppeds')
+        print('All micro images has cropped')
     print('----------------------------------------')

@@ -14,19 +14,19 @@ data_crystals = create_dataframes(['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 
 n_of_crystals_ = [0]
 
 # Code        
-print('Start to crop the island at micro images')   
-main_island(FOLDER_PATH) # crop the island  
+main_island(FOLDER_PATH) # crop the island from micro type images
         
 print('Start to classify the crystals')
 files = get_files(FOLDER_PATH)# list with all files in folder
 for file in files:
     properties = get_properties(file)
     
-    if images_to_verify(properties):
+    if images_to_verify(properties, island=True):
         image = get_image(FOLDER_PATH, file)
         
-        if properties[1] == 'Macro':
-            image = crop_the_image(image, 0.4)
+        # if properties[1] == 'Macro' or properties[1] == 'Mistura':
+        if not properties[1] == 'Micro':
+            image = crop_the_image(image, scale_crop=0.7)
         
         contours = filter(image, properties)
         data, n_of_crystals = classification(image, data, contours, properties)

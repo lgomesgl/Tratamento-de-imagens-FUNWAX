@@ -22,7 +22,7 @@ def get_properties(file):
     properties = file[:-4].split('_')
     return properties
 
-def image_island(properties):
+def is_island(properties):
     if len(properties) == 8:
         return True
     return False
@@ -57,10 +57,16 @@ def crop_the_island(image):
     return cropped_image
 
 def main_island(folder_path):  
+    print('Start to crop the island at micro images')  
     print('---------------NEW IMAGES---------------')
+    counter_new_images = 0
     for file in os.listdir(folder_path):
-        if get_properties(file)[1] == 'Micro' and (image_island(get_properties(file)) is False) and (check_if_image_island_exists(folder_path, file) is False): 
+        if get_properties(file)[1] == 'Micro' and (is_island(get_properties(file)) is False) and (check_if_image_island_exists(folder_path, file) is False): 
             image = get_image(folder_path, file)
             island_image = crop_the_island(image)
             save_the_image(folder_path, file, island_image)
             print('%s_island.jpg' % file)
+            counter_new_images += 1
+    if counter_new_images == 0:
+        print('All micro images has croppeds')
+    print('----------------------------------------')

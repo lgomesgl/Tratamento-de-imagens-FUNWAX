@@ -11,11 +11,15 @@ def get_image(folder_path, file):
     return cv2.imread('%s/%s' % (folder_path, file))
 
 def images_to_verify(properties, island):
-    # if properties[1] == 'Macro' or (properties[1] == 'Micro' and len(properties) == 8) or properties[1] == 'Mistura':
     if properties[1] == 'Macro' or (properties[1] == 'Micro' and is_island(properties) is island) or properties[1] == 'Mistura':
         return True
     return False
 
+def images_to_crop(island):
+    if island:
+        return ['Macro', 'Mistura']
+    return ['Macro','Micro','Mistura']
+    
 def crop_the_image(image, scale_crop):
     height, width,_ = image.shape
     crop_size = int(min(height, width) * scale_crop)

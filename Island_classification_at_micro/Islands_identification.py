@@ -57,7 +57,8 @@ def crop_the_island(image):
     return cropped_image
     
 # Path 
-FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
+FOLDER_PATH = '/home/lucas/FUNWAX/Images' ## linux path
+# FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
 for file in os.listdir(FOLDER_PATH):
     if get_properties(file)[1] == 'Micro' and (image_island(get_properties(file)) is False) and (check_if_image_island_exists(FOLDER_PATH, file) is False): 
         image = get_image(file)

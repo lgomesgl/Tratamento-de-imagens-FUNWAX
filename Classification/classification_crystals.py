@@ -54,8 +54,8 @@ def filter(image, properties):
         gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         # image = cv2.medianBlur(gray_image, 1) # !!!!!!!!!!!!!!
         image_blur = cv2.GaussianBlur(gray_image, (3, 3), 0)
-        # _, th = cv2.threshold(image_blur, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-        image_eq = cv2.equalizeHist(image_blur)
+        _, th = cv2.threshold(image_blur, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+        image_eq = cv2.equalizeHist(th)
         th_adap = cv2.adaptiveThreshold(image_eq, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
 
         # Apply aperture morphological filter
@@ -74,8 +74,8 @@ def filter(image, properties):
         gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         # image = cv2.medianBlur(gray_image, 1) # !!!!!!!!!!!!!!
         image_blur = cv2.GaussianBlur(gray_image, (1, 1), 0)
-        # _, th = cv2.threshold(image_blur, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-        image_eq = cv2.equalizeHist(image_blur)
+        _, th = cv2.threshold(image_blur, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+        image_eq = cv2.equalizeHist(th)
         th_adap = cv2.adaptiveThreshold(image_eq, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
 
         # Apply aperture morphological filter
@@ -89,8 +89,6 @@ def filter(image, properties):
             try to find the best image for input in cv2.findCountours
         '''
         contours, hierarchy = cv2.findContours(opening, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
-
 
     # verify if the color of the image
     # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)

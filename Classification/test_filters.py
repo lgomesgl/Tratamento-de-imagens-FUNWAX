@@ -11,49 +11,21 @@ import os
 def filters(file):
     # read the image    
     image = cv2.imread('%s/%s' % (FOLDER_PATH, file))
+    image_cnt = image.copy()
     
-    # verify if the color of the image
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    mean = cv2.mean(gray)[0]
-    if mean < 127:
-        image = cv2.bitwise_not(image)
-        
-    # # crop the image
-    # height, width,_ = image.shape
-    # crop_size = int(min(height, width) * 0.40)
-    # x = int((width - crop_size) / 2)
-    # y = int((height - crop_size) / 2)
-    # image = image[y:y+crop_size, x:x+crop_size]
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    image = cv2.GaussianBlur(image, (3, 3), 0)
+    kernel = np.ones((4, 4), np.uint8)
+    # image = cv2.erode(image, kernel) 
+    image = cv2.dilate(image, kernel, iterations=1)
+    ret, image = cv2.threshold(image, 220, 255, cv2.THRESH_BINARY)
+    # image = cv2.equalizeHist(image)
+    # image = cv2.adaptiveThreshold(image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
+    # image = cv2.morphologyEx(image, cv2.MORPH_OPEN, kernel, iterations=1)
     
-    # 1 option:
-    cv2.imshow('Original image', image)
-    cv2.waitKey(0)
-    
-    # filters
-    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    # image = cv2.medianBlur(gray_image, 1) # !!!!!!!!!!!!!!
-    image_blur = cv2.GaussianBlur(gray_image, (1, 1), 0)
-    # image_blur = cv2.blur(gray_image, (3, 3))
-    # _, th = cv2.threshold(image_blur, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-    image_eq = cv2.equalizeHist(image_blur)
-    th_adap = cv2.adaptiveThreshold(image_eq, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
-
-    # Apply aperture morphological filter
-    kernel = np.ones((5, 5),np.uint8)
-    opening = cv2.morphologyEx(th_adap, cv2.MORPH_OPEN, kernel, iterations=1)
-    
-    # 2 option:
-    cv2.imshow('Filter image', opening)
-    cv2.waitKey(0)
-    
-    # indentify the contours 
-    '''
-        try to find the best image for input in cv2.findCountours
-    '''
-    contours, hierarchy = cv2.findContours(opening, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    contours, hierarchy = cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     
     # calculate AR
-    image_cnt = image.copy()
     for cnt in contours:
         '''
             cv2.fitEllipse needs 5 point in contours. Some contours have less than 5 points.
@@ -73,10 +45,13 @@ def filters(file):
 
             #draw the contours
             image_cnt = cv2.drawContours(image_cnt, [box], 0, (0, 0, 255), 2)
-      
-    # 3 option:
-    cv2.imshow('Contours', image_cnt)
+    
+    cv2.namedWindow('raw image', cv2.WINDOW_NORMAL)
+    cv2.imshow('raw image', image_cnt)
     cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    
+    return image
     
 FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
 # FOLDER_PATH = '/home/lucas/FUNWAX/Images'
@@ -86,5 +61,5 @@ FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
 #     if file.endswith('.jpg') and type == 'Micro':
 #         filters(file)
 
-file ='1_Micro_10_5000_47_6_58_island.jpg'
-filters(file)
+file ='1_Micro_10_5000_47_6_31_island.jpg'
+image = filters(file)

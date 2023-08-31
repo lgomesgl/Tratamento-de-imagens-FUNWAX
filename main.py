@@ -11,7 +11,8 @@ NAME_CSV_DATA_CRYSTALS = 'Results_number_of_crystals.csv'
 
 def main(island, scale_crop):
     # Datas
-    data = create_dataframes(['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'cx', 'cy', 'major', 'minor', 'angle', 'AR'])
+    # data = create_dataframes(['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'cx', 'cy', 'major', 'minor', 'angle', 'AR'])
+    data = create_dataframes(['Type', 'Reynolds', 'Toil', 'Tcool', 'Time','Island','AR'])
     data_crystals = create_dataframes(['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'N_of_crystals'])
     n_of_crystals_ = [0]
 
@@ -30,8 +31,8 @@ def main(island, scale_crop):
             if properties[1] in images_to_crop(island):
                 image = crop_the_image(image, scale_crop)
             
-            contours = filter(image, properties)
-            data, n_of_crystals = classification(image, data, contours, properties)
+            contours, hierarchy = filter(image, properties)
+            data, n_of_crystals = classification(image, data, contours, hierarchy, properties)
 
             n_of_crystals_.append(n_of_crystals)
             data_crystals = data_n_of_crystals(data_crystals, properties, n_of_crystals_)
@@ -47,4 +48,4 @@ def main(island, scale_crop):
     
     return data, data_crystals
 
-data, data_crystals = main(island=True, scale_crop=0.5)
+data, data_crystals = main(island=False, scale_crop=0.5)

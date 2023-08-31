@@ -31,7 +31,7 @@ def graphics(data, data_crystals):
     plt.show()
     
     # 5: Distribution of AR
-    sns.histplot(data, x = data['AR'], bins=100, kde=True, hue=data['Type'])
+    sns.histplot(data, x = data['AR'], bins=50, kde=True, hue=data['Type'])
     plt.title('Distribuiton of AR')
     plt.show()
   

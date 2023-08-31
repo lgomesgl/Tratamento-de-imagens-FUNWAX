@@ -43,154 +43,97 @@ def get_properties(file):
     return properties
 
 def filter(image, properties):
-    # verify if the color of the image
-    # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    # mean = cv2.mean(gray)[0]
-    # if mean < 127:
-    #     image = cv2.bitwise_not(image)
+    # Convert to grayscale
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    mean = cv2.mean(gray)[0]
+    if mean < 100:
+        image = cv2.bitwise_not(image)
 
-    # filters
-    if properties[1] == 'Macro' or 'Mistura':
-        gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        # image = cv2.medianBlur(gray_image, 1) # !!!!!!!!!!!!!!
-        image_blur = cv2.GaussianBlur(gray_image, (3, 3), 0)
-        _, th = cv2.threshold(image_blur, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-        image_eq = cv2.equalizeHist(th)
-        th_adap = cv2.adaptiveThreshold(image_eq, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
+    # Apply adaptive histogram equalization
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(10, 10))
+    enhanced_gray = clahe.apply(gray)
 
-        # Apply aperture morphological filter
-        kernel_ = np.ones((5, 5),np.uint8)
-        opening = cv2.morphologyEx(th_adap, cv2.MORPH_OPEN, kernel_, iterations=1)
-        # cv2.imshow('teste', opening)
-        # cv2.waitKey(0)
+    # Function to calculate image contrast
+    def image_contrast(original, corrected):
+        mean_intensity_original = np.mean(original)
+        std_intensity_original = np.std(original)
         
-        # indentify the contours 
-        '''
-            try to find the best image for input in cv2.findCountours
-        '''
-        contours, hierarchy = cv2.findContours(opening, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-           
-    elif properties[1] == 'Micro':
-        gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        # image = cv2.medianBlur(gray_image, 1) # !!!!!!!!!!!!!!
-        image_blur = cv2.GaussianBlur(gray_image, (1, 1), 0)
-        _, th = cv2.threshold(image_blur, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-        image_eq = cv2.equalizeHist(th)
-        th_adap = cv2.adaptiveThreshold(image_eq, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
-
-        # Apply aperture morphological filter
-        kernel_ = np.ones((5, 5),np.uint8)
-        opening = cv2.morphologyEx(th_adap, cv2.MORPH_OPEN, kernel_, iterations=1)
-        # cv2.imshow('teste', opening)
-        # cv2.waitKey(0)
+        mean_intensity_corrected = np.mean(corrected)
+        std_intensity_corrected = np.std(corrected)
         
-        # indentify the contours 
-        '''
-            try to find the best image for input in cv2.findCountours
-        '''
-        contours, hierarchy = cv2.findContours(opening, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
-    # verify if the color of the image
-    # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    # mean = cv2.mean(gray)[0]
-    # if mean < 127:
-    #     image = cv2.bitwise_not(image)
-
-    # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    # mean = cv2.mean(gray)[0]
-    # if mean < 127:
-    #     image = cv2.bitwise_not(image)
+        contrast_original = std_intensity_original / mean_intensity_original
+        contrast_corrected = std_intensity_corrected / mean_intensity_corrected
         
-        
-    # #Aplica Filtro blur
-    # blurImg=cv2.blur(gray,(7,7))
-    # #blurImg = cv2.GaussianBlur(gray,(5,5),0)
+        return contrast_original, contrast_corrected
+
+    # Range de busca para gamma
+    gamma_values = np.linspace(0.5, 3.5, num=31)
+    best_gamma = 1.0
+    best_contrast_increase = 0.0
+    original_contrast, _ = image_contrast(enhanced_gray, enhanced_gray)
     
-    # #Estabelece o threshold para identificar os contornos
-    # #ret,thresh = cv2.threshold(blurImg,130,255,1)
-    # #ret,thresh = cv2.threshold(blurImg,118,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU) 
-    # # ret,thresh = cv2.threshold(blurImg,130,255,cv2.THRESH_TOZERO_INV)
-    # thresh = cv2.adaptiveThreshold(blurImg, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 5, -2)
-    
-    # #Identifica os contornos
-    # contours, hier = cv2.findContours(thresh,1,2)
-           
-    # elif properties[1] == 'Micro':
-    #     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    #     # image = cv2.medianBlur(gray_image, 1) # !!!!!!!!!!!!!!
-    #     image_blur = cv2.GaussianBlur(gray_image, kernel, 0)
-    #     # _, th = cv2.threshold(image_blur, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-    #     image_eq = cv2.equalizeHist(image_blur)
-    #     th_adap = cv2.adaptiveThreshold(image_eq, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
+    for gamma in gamma_values:
+        gamma_corrected = np.power(enhanced_gray / 255.0, gamma) * 255.0
+        gamma_corrected = gamma_corrected.astype(np.uint8)
 
-    #     # Apply aperture morphological filter
-    #     kernel_ = np.ones((5, 5),np.uint8)
-    #     opening = cv2.morphologyEx(th_adap, cv2.MORPH_OPEN, kernel_, iterations=1)
-    #     # cv2.imshow('teste', opening)
-    #     # cv2.waitKey(0)
+        _, corrected_contrast = image_contrast(enhanced_gray, gamma_corrected)
+        contrast_increase = corrected_contrast - original_contrast
+
+        if contrast_increase > best_contrast_increase:
+            best_contrast_increase = contrast_increase
+            best_gamma = gamma
         
-    #     # indentify the contours 
-    #     '''
-    #         try to find the best image for input in cv2.findCountours
-    #     '''
-    #     contours, hierarchy = cv2.findContours(opening, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    # Apply the best gamma correction
+    best_gamma_corrected = np.power(enhanced_gray / 255.0, best_gamma) * 255.0
+    best_gamma_corrected = best_gamma_corrected.astype(np.uint8)
 
-    return contours
+    # Apply Gaussian blur (adjust kernel size as needed)
+    blurred = cv2.GaussianBlur(best_gamma_corrected, (1, 1), 0)
 
-def classification(image, data, contours, properties):
-    # calculate AR
-    for cnt in contours:
-        '''
-            cv2.fitEllipse needs 5 point in contours. Some contours have less than 5 points.
-            Try to use the the function fitEllipse to calculate the AR. If don't work, use the function
-            minAreaRect to calculate the AR.
-        '''
-        try:
-            ellipse = cv2.fitEllipse(cnt)
-                  
-            cx = ellipse[0][0]
-            cy = ellipse[0][1]
-            major = max(ellipse[1][0], ellipse[1][1])
-            minor = min(ellipse[1][0], ellipse[1][1])
-            angle = ellipse[2]
-            ar = major/minor
-            
-            row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'cx': cx, 'cy': cy, 'major': major, 'minor': minor, 'angle':angle, 'AR': ar}])
-            data = pd.concat([data, row_to_append], ignore_index=True)
-            # data = row_to_append(data, ['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'cx', 'cy', 'major', 'minor', 'angle', 'AR'], 
-            #               [properties[1], properties[3], properties[4], properties[5], properties[6], cx, cy, major, minor, angle, ar])
-            
-            # draw the contours
-            image = cv2.ellipse(image, ellipse[0], ellipse[1], ellipse[2], 0, 360, (0, 0, 255), 3)
-            
-        except:
-            rect = cv2.minAreaRect(cnt)
-            box = cv2.boxPoints(rect)
-            box = np.int0(box)       
-            '''
-                rect -> ((x, y), (w, h), angle)
-                https://namkeenman.wordpress.com/2015/12/18/open-cv-determine-angle-of-rotatedrect-minarearect/
-            '''
-            # calculate the AR 
-            cx = rect[0][0]
-            cy = rect[0][1]
-            major = max(rect[1][0], rect[1][1])
-            minor = min(rect[1][0], rect[1][1])
-            angle = rect[2]
-            
-            if minor > 0 :
-                ar = major/minor
-            else:
-                ar = 0
+    # Use Otsu's thresholding
+    _, thresh = cv2.threshold(blurred, 90, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+
+    # Find contours and contour hierarchy
+    contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+         
+    return contours, hierarchy
+
+def classification(image, data, contours, hierarchy, properties):
+    # Create lists to store the aspect ratios and rectangles of crystals inside the islands and outside the islands
+    crystal_aspect_ratios_inside_islands = []
+    crystal_rectangles_inside_islands = []
+    crystal_aspect_ratios_outside_islands = []
+    crystal_rectangles_outside_islands = []
+
+    # Iterate over all contours and store aspect ratios and rectangles based on inside/outside the islands
+    for i, cnt in enumerate(contours):
+        if hierarchy[0, i, 3] != -1:  # Check if it's a child contour (inside an island)
+            minAreaRect = cv2.minAreaRect(cnt)
+            width, height = minAreaRect[1]
+            if min(width, height) > 0:
+                aspect_ratio = max(width, height) / min(width, height)
+                crystal_aspect_ratios_inside_islands.append(aspect_ratio)
+                box = cv2.boxPoints(minAreaRect)
+                box = np.int0(box)
+                crystal_rectangles_inside_islands.append(box)
+                row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'Island':'Inside', 'AR': aspect_ratio}])
+                data = pd.concat([data, row_to_append], ignore_index=True)
                 
-            row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'cx': cx, 'cy': cy, 'major': major, 'minor': minor, 'angle':angle, 'AR': ar}])
-            data = pd.concat([data, row_to_append], ignore_index=True)
-            
-            # row_to_append(data, ['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'cx', 'cy', 'major', 'minor', 'angle', 'AR'], 
-            #               [properties[1], properties[3], properties[4], properties[5], properties[6], cx, cy, major, minor, angle, ar])
-            
-            #draw the contours
-            image = cv2.drawContours(image, [box], 0, (0, 0, 255), 2)
+        else:
+            minAreaRect = cv2.minAreaRect(cnt)
+            width, height = minAreaRect[1]          
+            if min(width, height) > 0:
+                aspect_ratio = max(width, height) / min(width, height)
+                crystal_aspect_ratios_outside_islands.append(aspect_ratio)
+                box = cv2.boxPoints(minAreaRect)
+                box = np.int0(box)
+                crystal_rectangles_outside_islands.append(box)              
+                # row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'cx': cx, 'cy': cy, 'major': major, 'minor': minor, 'angle':angle, 'AR': ar}])
+                row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'Island':'Outside', 'AR': aspect_ratio}])
+                data = pd.concat([data, row_to_append], ignore_index=True)
+                        
+            # draw the contours
+            # image = cv2.drawContours(image, [box], 0, (0, 0, 255), 2)
       
     # validate the contours
     # cv2.imshow('Cristais', image)

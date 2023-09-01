@@ -48,4 +48,4 @@ def main(island, scale_crop):
     
     return data, data_crystals
 
-data, data_crystals = main(island=False, scale_crop=0.5)
+data, data_crystals = main(island=False, scale_crop=0.7)

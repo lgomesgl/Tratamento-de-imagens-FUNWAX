@@ -99,46 +99,51 @@ def filter(image, properties):
     return contours, hierarchy
 
 def classification(image, data, contours, hierarchy, properties):
-    # Create lists to store the aspect ratios and rectangles of crystals inside the islands and outside the islands
-    crystal_aspect_ratios_inside_islands = []
-    crystal_rectangles_inside_islands = []
-    crystal_aspect_ratios_outside_islands = []
-    crystal_rectangles_outside_islands = []
-
     # Iterate over all contours and store aspect ratios and rectangles based on inside/outside the islands
     for i, cnt in enumerate(contours):
-        if hierarchy[0, i, 3] != -1:  # Check if it's a child contour (inside an island)
+        if hierarchy[0, i, 2] != -1:  # Check if it's a parent contour (island), does not enter in dataset
             minAreaRect = cv2.minAreaRect(cnt)
             width, height = minAreaRect[1]
             if min(width, height) > 0:
                 aspect_ratio = max(width, height) / min(width, height)
-                crystal_aspect_ratios_inside_islands.append(aspect_ratio)
                 box = cv2.boxPoints(minAreaRect)
                 box = np.int0(box)
-                crystal_rectangles_inside_islands.append(box)
+            
+                # draw the contours
+                image = cv2.drawContours(image, [box], 0, (0, 255, 0), 1)
+                
+        elif hierarchy[0, i, 3] != -1:  # Check if it's a child contour (inside an island)
+            minAreaRect = cv2.minAreaRect(cnt)
+            width, height = minAreaRect[1]
+            if min(width, height) > 0:
+                aspect_ratio = max(width, height) / min(width, height)
+                box = cv2.boxPoints(minAreaRect)
+                box = np.int0(box)
                 row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'Island':'Inside', 'AR': aspect_ratio}])
                 data = pd.concat([data, row_to_append], ignore_index=True)
-                
-        else:
+            
+                # draw the contours
+                image = cv2.drawContours(image, [box], 0, (255, 0, 0), 1)
+                       
+        elif hierarchy[0,i,3] == -1:
             minAreaRect = cv2.minAreaRect(cnt)
             width, height = minAreaRect[1]          
             if min(width, height) > 0:
                 aspect_ratio = max(width, height) / min(width, height)
-                crystal_aspect_ratios_outside_islands.append(aspect_ratio)
                 box = cv2.boxPoints(minAreaRect)
-                box = np.int0(box)
-                crystal_rectangles_outside_islands.append(box)              
+                box = np.int0(box)         
                 # row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'cx': cx, 'cy': cy, 'major': major, 'minor': minor, 'angle':angle, 'AR': ar}])
                 row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'Island':'Outside', 'AR': aspect_ratio}])
                 data = pd.concat([data, row_to_append], ignore_index=True)
                         
-            # draw the contours
-            # image = cv2.drawContours(image, [box], 0, (0, 0, 255), 2)
+                # draw the contours
+                image = cv2.drawContours(image, [box], 0, (0, 0, 255), 1)
       
+
     # validate the contours
-    # cv2.imshow('Cristais', image)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    cv2.imshow('Cristais', image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
     
     n_of_crystals = data.shape[0]
     

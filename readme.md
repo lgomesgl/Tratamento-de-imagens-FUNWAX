@@ -39,3 +39,7 @@ We started the project by cropping the images from the center, see in function c
     ## island_identification.py
 
 ## Validation folder
+
+## Obs
+Some rectangles are bigger then others. The option is calculate the distribution of crystals in each image and delete the rect that is out
+of 75% by medium. 

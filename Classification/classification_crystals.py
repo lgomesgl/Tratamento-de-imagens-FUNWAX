@@ -99,6 +99,7 @@ def filter(image, properties):
     return contours, hierarchy
 
 def classification(image, data, contours, hierarchy, properties):
+    cont_parent, cont_child, cont_else = 0, 0, 0
     # Iterate over all contours and store aspect ratios and rectangles based on inside/outside the islands
     for i, cnt in enumerate(contours):
         if hierarchy[0, i, 2] != -1:  # Check if it's a parent contour (island), does not enter in dataset
@@ -108,9 +109,10 @@ def classification(image, data, contours, hierarchy, properties):
                 aspect_ratio = max(width, height) / min(width, height)
                 box = cv2.boxPoints(minAreaRect)
                 box = np.int0(box)
-            
+                cont_parent += 1
+
                 # draw the contours
-                image = cv2.drawContours(image, [box], 0, (0, 255, 0), 1)
+                image = cv2.drawContours(image, [box], 0, (0, 255, 0), 1) 
                 
         elif hierarchy[0, i, 3] != -1:  # Check if it's a child contour (inside an island)
             minAreaRect = cv2.minAreaRect(cnt)
@@ -119,35 +121,38 @@ def classification(image, data, contours, hierarchy, properties):
                 aspect_ratio = max(width, height) / min(width, height)
                 box = cv2.boxPoints(minAreaRect)
                 box = np.int0(box)
+                cont_child += 1
                 row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'Island':'Inside', 'AR': aspect_ratio}])
                 data = pd.concat([data, row_to_append], ignore_index=True)
             
                 # draw the contours
                 image = cv2.drawContours(image, [box], 0, (255, 0, 0), 1)
                        
-        elif hierarchy[0,i,3] == -1:
+        else:
             minAreaRect = cv2.minAreaRect(cnt)
             width, height = minAreaRect[1]          
             if min(width, height) > 0:
                 aspect_ratio = max(width, height) / min(width, height)
                 box = cv2.boxPoints(minAreaRect)
                 box = np.int0(box)         
+                cont_else += 1
                 # row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'cx': cx, 'cy': cy, 'major': major, 'minor': minor, 'angle':angle, 'AR': ar}])
                 row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'Island':'Outside', 'AR': aspect_ratio}])
                 data = pd.concat([data, row_to_append], ignore_index=True)
                         
                 # draw the contours
                 image = cv2.drawContours(image, [box], 0, (0, 0, 255), 1)
-      
+    
+    perct_parent, perct_child, perct_else = proportion_contours(cont_parent,cont_child,cont_else)
 
     # validate the contours
-    cv2.imshow('Cristais', image)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # cv2.imshow('Cristais', image)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
     
     n_of_crystals = data.shape[0]
     
-    return data, n_of_crystals
+    return data, n_of_crystals, perct_parent, perct_child, perct_else 
 
 def is_island(properties):
     if len(properties) == 8 :
@@ -158,4 +163,12 @@ def crystals_stage(properties):
     if properties[6] < 7: 
         return 'initial'
     return 'developed'
- 
+
+def proportion_contours(cont_parent, cont_child, cont_else):
+    sum = cont_parent + cont_child + cont_else
+    if sum == 0:
+        return 0, 0, 0
+    perct_parent = cont_parent/sum *100
+    perct_child = cont_child/sum * 100
+    perct_else = cont_else/sum * 100
+    return round(perct_parent,2), round(perct_child,2), round(perct_else,2)

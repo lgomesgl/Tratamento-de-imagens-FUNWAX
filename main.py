@@ -1,7 +1,7 @@
 from Island_classification_at_micro.island_crop import main_island
 from Classification.data import create_dataframes, separate_the_data_by_column, save_the_data, data_n_of_crystals
 from Classification.classification_crystals import get_properties, get_image, crop_the_image, filter, classification, images_to_verify, images_to_crop, get_files
-from Classification.pos_processing import graphics
+from Processing.pos import graphics, hierarchy
 
 # Variables
 # FOLDER_PATH = '/home/lucas/FUNWAX/Images' ## linux path
@@ -13,7 +13,7 @@ def main(island, scale_crop):
     # Datas
     # data = create_dataframes(['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'cx', 'cy', 'major', 'minor', 'angle', 'AR'])
     data = create_dataframes(['Type', 'Reynolds', 'Toil', 'Tcool', 'Time','Island','AR'])
-    data_crystals = create_dataframes(['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'N_of_crystals'])
+    data_crystals = create_dataframes(['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'N_of_crystals','Parent(%)','Child(%)','No Parent/Child(%)'])
     n_of_crystals_ = [0]
 
     # Code    
@@ -32,10 +32,10 @@ def main(island, scale_crop):
                 image = crop_the_image(image, scale_crop)
             
             contours, hierarchy = filter(image, properties)
-            data, n_of_crystals = classification(image, data, contours, hierarchy, properties)
+            data, n_of_crystals, perct_parent, perct_child, perct_else  = classification(image, data, contours, hierarchy, properties)
 
             n_of_crystals_.append(n_of_crystals)
-            data_crystals = data_n_of_crystals(data_crystals, properties, n_of_crystals_)
+            data_crystals = data_n_of_crystals(data_crystals, properties, n_of_crystals_, perct_parent, perct_child, perct_else)
         
             print('%s...Ok' % file)
         
@@ -45,6 +45,7 @@ def main(island, scale_crop):
     # dataframes = separate_the_data_by_column(data, 'kernel')
 
     graphics(data, data_crystals)
+    hierarchy(data_crystals)
     
     return data, data_crystals
 

@@ -1,6 +1,7 @@
 from Island_classification_at_micro.island_crop import main_island
-from Classification.data import create_dataframes, separate_the_data_by_column, save_the_data, data_n_of_crystals
-from Classification.classification_crystals import get_properties, get_image, crop_the_image, filter, classification, images_to_verify, images_to_crop, get_files
+from Crystals.data import create_dataframes, separate_the_data_by_column, save_the_data, data_n_of_crystals
+from Crystals.classification_crystals import get_properties, get_image, crop_the_image, filter, classification, images_to_verify, images_to_crop, get_files
+from Statistic.hierarchy_erro import hierarchy_erro
 from Processing.pos import graphics, hierarchy
 
 # Variables
@@ -44,9 +45,11 @@ def main(island, scale_crop):
 
     # dataframes = separate_the_data_by_column(data, 'kernel')
 
-    graphics(data, data_crystals)
-    hierarchy(data_crystals)
+    # graphics(data, data_crystals)
+    # hierarchy(data_crystals)
+    
+    print(hierarchy_erro())
     
     return data, data_crystals
 
-data, data_crystals = main(island=False, scale_crop=0.7)
+data, data_crystals = main(island=False, scale_crop=0.5)

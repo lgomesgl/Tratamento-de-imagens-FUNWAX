@@ -45,7 +45,7 @@ def main(island, scale_crop):
 
     # dataframes = separate_the_data_by_column(data, 'kernel')
 
-    # graphics(data, data_crystals)
+    graphics(data, data_crystals)
     # hierarchy(data_crystals)
     
     print(hierarchy_erro())

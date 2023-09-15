@@ -122,8 +122,8 @@ def classification(image, data, contours, hierarchy, properties):
                 box = cv2.boxPoints(minAreaRect)
                 box = np.int0(box)
                 cont_child += 1
-                row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'Island':'Inside', 'AR': aspect_ratio}])
-                data = pd.concat([data, row_to_append], ignore_index=True)
+                # row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'Island':'Inside', 'AR': aspect_ratio}])
+                # data = pd.concat([data, row_to_append], ignore_index=True)
             
                 # draw the contours
                 image = cv2.drawContours(image, [box], 0, (255, 0, 0), 1)

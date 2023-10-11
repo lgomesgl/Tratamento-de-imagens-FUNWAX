@@ -5,8 +5,8 @@ from Statistic.hierarchy_erro import hierarchy_erro
 from Processing.pos import graphics, hierarchy
 
 # Variables
-# FOLDER_PATH = '/home/lucas/FUNWAX/Images' ## linux path
-FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
+FOLDER_PATH = '/home/lucas/FUNWAX/Images' ## linux path
+# FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
 NAME_CSV_DATA = 'Results_crystals.csv'
 NAME_CSV_DATA_CRYSTALS = 'Results_number_of_crystals.csv'
 

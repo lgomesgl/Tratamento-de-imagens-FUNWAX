@@ -137,7 +137,7 @@ def classification(image, data, contours, hierarchy, properties):
                 box = np.int0(box)         
                 cont_else += 1
                 # row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'cx': cx, 'cy': cy, 'major': major, 'minor': minor, 'angle':angle, 'AR': ar}])
-                row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'Island':'Outside', 'AR': aspect_ratio}])
+                row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':int(properties[6]), 'Island':'Outside', 'AR': aspect_ratio}])
                 data = pd.concat([data, row_to_append], ignore_index=True)
                         
                 # draw the contours
@@ -145,6 +145,7 @@ def classification(image, data, contours, hierarchy, properties):
     
     perct_parent, perct_child, perct_else = proportion_contours(cont_parent,cont_child,cont_else)
 
+    
     # validate the contours
     # cv2.imshow('Cristais', image)
     # cv2.waitKey(0)

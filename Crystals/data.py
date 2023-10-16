@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 def create_dataframes(columns):
     return pd.DataFrame(columns=columns)
@@ -32,3 +34,17 @@ def data_n_of_crystals(data_crystals, properties, n_of_crystals_,perct_parent, p
     data_crystals = pd.concat([data_crystals, row_to_append], ignore_index=True)
     return data_crystals
 
+def dist_image(data, n,n_of_crystals):
+    n.append(n_of_crystals)
+    print(n)
+
+    if len(n) == 1:
+        df = data.iloc[0:n_of_crystals]
+    else:  
+
+        df = data.iloc[n[-2]:n[-1]]
+    
+    sns.histplot(df, x = df['AR'], bins=50, kde=True, hue=data['Type'])
+    plt.title('Distribuiton of AR')
+    plt.show()
+    

@@ -139,7 +139,7 @@ def classification(image, data, contours, hierarchy, properties):
                 box = np.int0(box)         
                 cont_else += 1
                 # row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'cx': cx, 'cy': cy, 'major': major, 'minor': minor, 'angle':angle, 'AR': ar}])
-                row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'Island':'Outside', 'AR': aspect_ratio}])
+                row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':int(properties[6]), 'Island':'Outside', 'AR': aspect_ratio}])
                 data = pd.concat([data, row_to_append], ignore_index=True)
                         
                 # draw the contours
@@ -152,12 +152,7 @@ def classification(image, data, contours, hierarchy, properties):
     cv2.imshow('Cristais_%s_%s_%s' % (properties[1], properties[3], properties[6]), image)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-    
-    # Distribution
-    sns.histplot(data, x = data['AR'], bins = 20, kde=True, hue=data['Type'])
-    plt.title('Distribution')
-    plt.show()
-        
+            
     
     n_of_crystals = data.shape[0]
     

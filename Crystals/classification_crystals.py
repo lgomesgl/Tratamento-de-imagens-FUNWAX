@@ -1,6 +1,8 @@
 #import the libraries
 import numpy as np
 import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 import cv2
 import os 
 
@@ -145,10 +147,17 @@ def classification(image, data, contours, hierarchy, properties):
     
     perct_parent, perct_child, perct_else = proportion_contours(cont_parent,cont_child,cont_else)
 
+
     # validate the contours
-    # cv2.imshow('Cristais', image)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    cv2.imshow('Cristais_%s_%s_%s' % (properties[1], properties[3], properties[6]), image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    
+    # Distribution
+    sns.histplot(data, x = data['AR'], bins = 20, kde=True, hue=data['Type'])
+    plt.title('Distribution')
+    plt.show()
+        
     
     n_of_crystals = data.shape[0]
     

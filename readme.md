@@ -1,4 +1,6 @@
 # Tratamento de imagens - FUNWAX
+Image that its a micro with reynolds 2000 the classification its make some outliers(no child/parent)
+Micro,1000 -> Images that have the short time
 
 ## Classification folder
 This project have images with crystals. 

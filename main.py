@@ -1,12 +1,13 @@
 from Island_classification_at_micro.island_crop import main_island
-from Crystals.data import create_dataframes, separate_the_data_by_column, save_the_data, data_n_of_crystals, dist_image
+from Crystals.data import create_dataframes, separate_the_data_by_column, save_the_data, data_n_of_crystals, data_each_image
 from Crystals.classification_crystals import get_properties, get_image, crop_the_image, filter, classification, images_to_verify, images_to_crop, get_files
 from Statistic.hierarchy_erro import hierarchy_erro
+from Processing.dynamic import dist_image
 from Processing.pos import graphics, hierarchy
 
 # Variables
-FOLDER_PATH = '/home/lucas/FUNWAX/Images' ## linux path
-# FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
+# FOLDER_PATH = '/home/lucas/FUNWAX/Images' ## linux path
+FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
 NAME_CSV_DATA = 'Results_crystals.csv'
 NAME_CSV_DATA_CRYSTALS = 'Results_number_of_crystals.csv'
 
@@ -16,7 +17,7 @@ def main(island, scale_crop):
     data = create_dataframes(['Type', 'Reynolds', 'Toil', 'Tcool', 'Time','Island','AR'])
     data_crystals = create_dataframes(['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'N_of_crystals','Parent(%)','Child(%)','No Parent/Child(%)'])
     n_of_crystals_ = [0]
-    n = []
+    num_image = []
 
     # Code    
     if island:    
@@ -39,7 +40,8 @@ def main(island, scale_crop):
             n_of_crystals_.append(n_of_crystals)
             data_crystals = data_n_of_crystals(data_crystals, properties, n_of_crystals_, perct_parent, perct_child, perct_else)
 
-            dist_image(data,n,n_of_crystals)
+            df = data_each_image(data,num_image,n_of_crystals)
+            dist_image(df)
             
             print('%s...Ok' % file)
         
@@ -51,7 +53,7 @@ def main(island, scale_crop):
     graphics(data, data_crystals)
     # hierarchy(data_crystals)
     
-    print(hierarchy_erro())
+    # print(hierarchy_erro())
     
     return data, data_crystals
 

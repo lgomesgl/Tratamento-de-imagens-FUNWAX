@@ -34,17 +34,14 @@ def data_n_of_crystals(data_crystals, properties, n_of_crystals_,perct_parent, p
     data_crystals = pd.concat([data_crystals, row_to_append], ignore_index=True)
     return data_crystals
 
-def dist_image(data, n,n_of_crystals):
-    n.append(n_of_crystals)
-    print(n)
+def data_each_image(data, num_image, n_of_crystals):
+    num_image.append(n_of_crystals)
 
-    if len(n) == 1:
-        df = data.iloc[0:n_of_crystals]
+    if len(num_image) == 1:
+        return data.iloc[0:n_of_crystals]
     else:  
+        return data.iloc[num_image[-2]:num_image[-1]]
 
-        df = data.iloc[n[-2]:n[-1]]
-    
-    sns.histplot(df, x = df['AR'], bins=50, kde=True, hue=data['Type'])
-    plt.title('Distribuiton of AR')
-    plt.show()
+
+
     

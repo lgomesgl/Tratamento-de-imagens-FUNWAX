@@ -1,6 +1,6 @@
 from Island_classification_at_micro.island_crop import main_island
 from Crystals.data import create_dataframes, separate_the_data_by_column, save_the_data, data_n_of_crystals, data_each_image
-from Crystals.classification_crystals import get_properties, get_image, crop_the_image, filter, classification, images_to_verify, images_to_crop, get_files
+from Crystals.classification_crystals import get_files, get_properties, images_to_verify, get_image, crop_the_image, filter, classification, images_to_crop
 from Statistic.hierarchy_erro import hierarchy_erro
 from Processing.dynamic import dist_image
 from Processing.pos import graphics, hierarchy
@@ -16,11 +16,13 @@ def main(island, scale_crop):
     # data = create_dataframes(['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'cx', 'cy', 'major', 'minor', 'angle', 'AR'])
     data = create_dataframes(['Type', 'Reynolds', 'Toil', 'Tcool', 'Time','Island','AR'])
     data_crystals = create_dataframes(['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'N_of_crystals','Parent(%)','Child(%)','No Parent/Child(%)'])
+    
+    # List
     n_of_crystals_ = [0]
     num_image = []
 
     # Code    
-    if island:    
+    if island:   
         main_island(FOLDER_PATH) # crop the island from micro type images
             
     print('Start to classify the crystals')
@@ -41,11 +43,12 @@ def main(island, scale_crop):
             data_crystals = data_n_of_crystals(data_crystals, properties, n_of_crystals_, perct_parent, perct_child, perct_else)
 
             df = data_each_image(data,num_image,n_of_crystals)
-            dist_image(df)
+            # dist_image(df)
             
             print('%s...Ok' % file)
         
-    save_the_data(data, NAME_CSV_DATA) # update the data
+    # update the data
+    save_the_data(data, NAME_CSV_DATA) 
     save_the_data(data_crystals, NAME_CSV_DATA_CRYSTALS)
 
     # dataframes = separate_the_data_by_column(data, 'kernel')
@@ -57,4 +60,4 @@ def main(island, scale_crop):
     
     return data, data_crystals
 
-data, data_crystals = main(island=False, scale_crop=0.5)
+data, data_crystals = main(island=False, scale_crop=0.4)

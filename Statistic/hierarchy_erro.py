@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 from Statistic.datasets import separate_data_statistic, parameters_dataframe
 
-data = pd.read_csv('D:\LUCAS\IC\FUNWAX\Results_number_of_crystals.csv')
-# data = pd.read_csv('/home/lucas/FUNWAX/Results_number_of_crystals.csv')
+# data = pd.read_csv('D:\LUCAS\IC\FUNWAX\Results_number_of_crystals.csv')
+data = pd.read_csv('/home/lucas/FUNWAX/Results_number_of_crystals.csv')
 
 dataframes = separate_data_statistic(data)
 parameters = parameters_dataframe(dataframes)

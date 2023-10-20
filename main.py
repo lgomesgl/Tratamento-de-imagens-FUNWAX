@@ -1,25 +1,25 @@
 from Island_classification_at_micro.island_crop import main_island
 from Crystals.data import create_dataframes, separate_the_data_by_column, save_the_data, data_n_of_crystals, data_each_image
-from Crystals.classification_crystals import get_properties, get_image, crop_the_image, filter, classification, images_to_verify, images_to_crop, get_files
+from Crystals.classification_crystals import get_properties, get_image, crop_the_image, filter, classification, images_to_verify, images_to_crop, get_files, zoom
 from Statistic.hierarchy_erro import hierarchy_erro
 from Processing.dynamic import dist_image
 from Processing.pos import graphics, hierarchy
 
 # Variables
-# FOLDER_PATH = '/home/lucas/FUNWAX/Images' ## linux path
-FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
+FOLDER_PATH = '/home/lucas/FUNWAX/Images' ## linux path
+# FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
 NAME_CSV_DATA = 'Results_crystals.csv'
 NAME_CSV_DATA_CRYSTALS = 'Results_number_of_crystals.csv'
 
 def main(island, scale_crop):
     # Data
     # data = create_dataframes(['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'cx', 'cy', 'major', 'minor', 'angle', 'AR'])
-    data = create_dataframes(['Type', 'Reynolds', 'Toil', 'Tcool', 'Time','Island','AR'])
+    data = create_dataframes(['Type', 'Reynolds', 'Toil', 'Tcool', 'Time','Island','Countour','AR'])
     data_crystals = create_dataframes(['Type', 'Reynolds', 'Toil', 'Tcool', 'Time', 'N_of_crystals','Parent(%)','Child(%)','No Parent/Child(%)'])
     n_of_crystals_ = [0]
     num_image = []
 
-    # Code    
+    # Island    
     if island:    
         main_island(FOLDER_PATH) # crop the island from micro type images
             
@@ -33,6 +33,7 @@ def main(island, scale_crop):
             
             if properties[1] in images_to_crop(island):
                 image = crop_the_image(image, scale_crop)
+                # image = zoom(image)
             
             contours, hierarchy = filter(image, properties)
             data, n_of_crystals, perct_parent, perct_child, perct_else  = classification(image, data, contours, hierarchy, properties)
@@ -40,21 +41,20 @@ def main(island, scale_crop):
             n_of_crystals_.append(n_of_crystals)
             data_crystals = data_n_of_crystals(data_crystals, properties, n_of_crystals_, perct_parent, perct_child, perct_else)
 
-            df = data_each_image(data,num_image,n_of_crystals)
-            dist_image(df)
+            # df = data_each_image(data,num_image,n_of_crystals)
+            # dist_image(df)
             
             print('%s...Ok' % file)
-        
-    save_the_data(data, NAME_CSV_DATA) # update the data
-    save_the_data(data_crystals, NAME_CSV_DATA_CRYSTALS)
-
+       
     # dataframes = separate_the_data_by_column(data, 'kernel')
 
     graphics(data, data_crystals)
+    save_the_data(data,NAME_CSV_DATA)
+    save_the_data(data_crystals, NAME_CSV_DATA_CRYSTALS)
     # hierarchy(data_crystals)
     
     # print(hierarchy_erro())
     
     return data, data_crystals
 
-data, data_crystals = main(island=False, scale_crop=0.5)
+data, data_crystals = main(island=True, scale_crop=0.5)

@@ -105,55 +105,71 @@ def classification(image, data, contours, hierarchy, properties):
     # Iterate over all contours and store aspect ratios and rectangles based on inside/outside the islands
     for i, cnt in enumerate(contours):
         if hierarchy[0, i, 2] != -1:  # Check if it's a parent contour (island), does not enter in dataset
-            minAreaRect = cv2.minAreaRect(cnt)
-            width, height = minAreaRect[1]
-            if min(width, height) > 0:
-                aspect_ratio = max(width, height) / min(width, height)
-                box = cv2.boxPoints(minAreaRect)
-                box = np.int0(box)
-                cont_parent += 1
+            try:
+                ellipse = cv2.fitEllipse(cnt)
+                image = cv2.ellipse(image, ellipse[0], ellipse[1], ellipse[2], 0, 360, (0, 255, 0), 3)
+            except: 
+                minAreaRect = cv2.minAreaRect(cnt)
+                width, height = minAreaRect[1]
+                if min(width, height) > 0:
+                    aspect_ratio = max(width, height) / min(width, height)
+                    box = cv2.boxPoints(minAreaRect)
+                    box = np.int0(box)
+                    cont_parent += 1
 
-                # draw the contours
-                image = cv2.drawContours(image, [box], 0, (0, 255, 0), 1) 
-                
+                    # draw the contours
+                    image = cv2.drawContours(image, [box], 0, (0, 255, 0), 1) 
+
         elif hierarchy[0, i, 3] != -1:  # Check if it's a child contour (inside an island)
-            minAreaRect = cv2.minAreaRect(cnt)
-            width, height = minAreaRect[1]
-            if min(width, height) > 0:
-                aspect_ratio = max(width, height) / min(width, height)
-                box = cv2.boxPoints(minAreaRect)
-                box = np.int0(box)
-                cont_child += 1
-                # row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'Island':'Inside', 'AR': aspect_ratio}])
-                # data = pd.concat([data, row_to_append], ignore_index=True)
-            
-                # draw the contours
-                image = cv2.drawContours(image, [box], 0, (255, 0, 0), 1)
+            try:
+                ellipse = cv2.fitEllipse(cnt)
+                image = cv2.ellipse(image, ellipse[0], ellipse[1], ellipse[2], 0, 360, (255, 0, 0), 3)
+            except:
+                minAreaRect = cv2.minAreaRect(cnt)
+                width, height = minAreaRect[1]
+                if min(width, height) > 0:
+                    aspect_ratio = max(width, height) / min(width, height)
+                    box = cv2.boxPoints(minAreaRect)
+                    box = np.int0(box)
+                    cont_child += 1
+                    # row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'Island':'Inside', 'AR': aspect_ratio}])
+                    # data = pd.concat([data, row_to_append], ignore_index=True)
+                
+                    # draw the contours
+                    image = cv2.drawContours(image, [box], 0, (255, 0, 0), 1)
                        
         else:
-            minAreaRect = cv2.minAreaRect(cnt)
-            width, height = minAreaRect[1]          
-            if min(width, height) > 0:
-                aspect_ratio = max(width, height) / min(width, height)
-                box = cv2.boxPoints(minAreaRect)
-                box = np.int0(box)         
-                cont_else += 1
-                # row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'cx': cx, 'cy': cy, 'major': major, 'minor': minor, 'angle':angle, 'AR': ar}])
-                row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':int(properties[6]), 'Island':'Outside', 'AR': aspect_ratio}])
-                data = pd.concat([data, row_to_append], ignore_index=True)
-                        
-                # draw the contours
-                image = cv2.drawContours(image, [box], 0, (0, 0, 255), 1)
+            try:
+                ellipse = cv2.fitEllipse(cnt)
+                image = cv2.ellipse(image, ellipse[0], ellipse[1], ellipse[2], 0, 360, (0, 0, 255), 3)
+                major = max(ellipse[1][0], ellipse[1][1])
+                minor = min(ellipse[1][0], ellipse[1][1])
+                aspect_ratio = major/minor
+                row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':int(properties[6]), 'Island':'Outside', 'Contour':'Ellipse','AR': aspect_ratio}])
+                data = pd.concat([data, row_to_append], ignore_index=True)                
+            except:
+                minAreaRect = cv2.minAreaRect(cnt)
+                width, height = minAreaRect[1]          
+                if min(width, height) > 0:
+                    aspect_ratio = max(width, height) / min(width, height)
+                    box = cv2.boxPoints(minAreaRect)
+                    box = np.int0(box)         
+                    cont_else += 1
+                    # row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'cx': cx, 'cy': cy, 'major': major, 'minor': minor, 'angle':angle, 'AR': ar}])
+                    row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':int(properties[6]), 'Island':'Outside', 'Contour':'Square','AR': aspect_ratio}])
+                    data = pd.concat([data, row_to_append], ignore_index=True)
+                            
+                    # draw the contours
+                    image = cv2.drawContours(image, [box], 0, (0, 0, 255), 1)
     
     perct_parent, perct_child, perct_else = proportion_contours(cont_parent,cont_child,cont_else)
 
 
     # validate the contours
-    # cv2.imshow('Cristais_%s_%s_%s' % (properties[1], properties[3], properties[6]), image)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    cv2.imshow('Cristais_%s_%s_%s' % (properties[1], properties[3], properties[6]), image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
             
-    
     n_of_crystals = data.shape[0]
     
     return data, n_of_crystals, perct_parent, perct_child, perct_else 
@@ -176,3 +192,6 @@ def proportion_contours(cont_parent, cont_child, cont_else):
     perct_child = cont_child/sum * 100
     perct_else = cont_else/sum * 100
     return round(perct_parent,2), round(perct_child,2), round(perct_else,2)
+
+def zoom(image, zoom_factor=2):
+    return cv2.resize(image, None, fx=zoom_factor, fy=zoom_factor)

@@ -28,19 +28,19 @@ def image_island(properties):
     return False
 
 def crop_the_island(image):
-    # Converte para escala de cinza
+    # Convert to gray image
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # thresholding
     ret, thresh = cv2.threshold(gray, 60, 255, cv2.THRESH_BINARY)
 
-    # Encontra contornos
+    # FInd countours
     contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    # Encontra contorno com maior área
+    # Find the biggest contours
     largest_contour = max(contours, key=cv2.contourArea)
 
-    # Retâgulo em torno do maior contorno
+    # Rectangle in the biggest contours
     x, y, w, h = cv2.boundingRect(largest_contour)
 
     # Crop 
@@ -60,6 +60,7 @@ def crop_the_island(image):
 FOLDER_PATH = '/home/lucas/FUNWAX/Images' ## linux path
 # FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
 for file in os.listdir(FOLDER_PATH):
+    # 
     if get_properties(file)[1] == 'Micro' and (image_island(get_properties(file)) is False) and (check_if_image_island_exists(FOLDER_PATH, file) is False): 
         image = get_image(file)
         island_image = crop_the_island(image)

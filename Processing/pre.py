@@ -2,8 +2,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-data = pd.read_csv('D:\LUCAS\IC\FUNWAX\Results_crystals.csv')
-data_crystals = pd.read_csv('D:\LUCAS\IC\FUNWAX\Results_number_of_crystals.csv')
+# data = pd.read_csv('D:\LUCAS\IC\FUNWAX\Results_crystals.csv')
+# data_crystals = pd.read_csv('D:\LUCAS\IC\FUNWAX\Results_number_of_crystals.csv')
 
 # 1: AR x Reynolds, hue = Type
 # plt.subplot(2, 2, 1)

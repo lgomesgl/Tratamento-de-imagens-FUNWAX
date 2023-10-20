@@ -9,7 +9,7 @@ def dist_image(df):
         plt.title('Normal Distribuiton of AR')
         
         plt.subplot(1,2,2)
-        sns.histplot(df, x = df['AR'], bins=20, kde=True, weights=df['AR']) 
+        sns.histplot(df, x = df['AR'], bins=20, kde=True, stat='frequency') 
         plt.title('Weighted Distribuiton of AR')
         plt.show()
     except:

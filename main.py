@@ -8,6 +8,7 @@ from Processing.pos import graphics, hierarchy
 # Variables
 # FOLDER_PATH = '/home/lucas/FUNWAX/Images' ## linux path
 FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images'
+# FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Images_test1'
 NAME_CSV_DATA = 'Results_crystals.csv'
 NAME_CSV_DATA_CRYSTALS = 'Results_number_of_crystals.csv'
 
@@ -42,7 +43,7 @@ def main(island, scale_crop):
             n_of_crystals_.append(n_of_crystals)
             data_crystals = data_n_of_crystals(data_crystals, properties, n_of_crystals_, perct_parent, perct_child, perct_else)
 
-            df = data_each_image(data,num_image,n_of_crystals)
+            # df = data_each_image(data,num_image,n_of_crystals)
             # dist_image(df)
             
             print('%s...Ok' % file)
@@ -60,4 +61,4 @@ def main(island, scale_crop):
     
     return data, data_crystals
 
-data, data_crystals = main(island=False, scale_crop=0.4)
+data, data_crystals = main(island=True, scale_crop=0.5)

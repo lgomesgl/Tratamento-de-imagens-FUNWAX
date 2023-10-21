@@ -32,9 +32,19 @@ def graphics(data, data_crystals):
     
     # 5: Distribution of AR
     sns.histplot(data, x = data['AR'], bins=50, kde=True, hue=data['Type'])
-    plt.title('Distribuiton of AR')
+    plt.title('Distribution of AR')
     plt.show()
   
+    plt.subplot(1,2,1)
+    df_macro = data[(data['Type'] == 'Macro')]
+    sns.histplot(df_macro, x = df_macro['AR'], bins=20, kde=True, hue=df_macro['Reynolds'])
+    plt.title('Distribution of AR by Reynolds at Macro crystals')
+    
+    plt.subplot(1,2,2)
+    df_micro = data[(data['Type'] == 'Micro')]
+    sns.histplot(df_micro, x = df_micro['AR'], bins=20, kde=True, hue=df_micro['Reynolds'])
+    plt.title('Distribution of AR by Reynolds at Micro crystals')
+    plt.show()
     # --------------------------------------- N_of_crystals graphics ---------------------------------------------------
     # 6: N of crystals x Reynolds, hue = Type
     df_1 = data_crystals.groupby(['Type','Reynolds'], as_index=False)['N_of_crystals'].sum()

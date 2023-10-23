@@ -57,7 +57,7 @@ def main(island, scale_crop):
     graphics(data, data_crystals)
     # hierarchy(data_crystals)
     
-    # print(hierarchy_erro())
+    print(hierarchy_erro())
     
     return data, data_crystals
 

@@ -1,7 +1,6 @@
 '''
     Graphics in readme.md
 '''
-
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -35,36 +34,38 @@ def graphics(data, data_crystals):
     plt.title('Distribution of AR')
     plt.show()
   
+    # 6: Distribution of AR by Reynolds at Macro crystals
     plt.subplot(1,2,1)
     df_macro = data[(data['Type'] == 'Macro')]
     sns.histplot(df_macro, x = df_macro['AR'], bins=20, kde=True, hue=df_macro['Reynolds'])
     plt.title('Distribution of AR by Reynolds at Macro crystals')
     
+    # 7: Distribution of AR by Reynolds at Micro crystals
     plt.subplot(1,2,2)
     df_micro = data[(data['Type'] == 'Micro')]
     sns.histplot(df_micro, x = df_micro['AR'], bins=20, kde=True, hue=df_micro['Reynolds'])
     plt.title('Distribution of AR by Reynolds at Micro crystals')
     plt.show()
     # --------------------------------------- N_of_crystals graphics ---------------------------------------------------
-    # 6: N of crystals x Reynolds, hue = Type
+    # 8: N of crystals x Reynolds, hue = Type
     df_1 = data_crystals.groupby(['Type','Reynolds'], as_index=False)['N_of_crystals'].sum()
     plt.subplot(2, 2, 1)
     sns.lineplot(x=df_1['Reynolds'], y=df_1['N_of_crystals'], hue=df_1['Type'])
     plt.title('N_of_crystals x Reynolds')
  
-    # 7: N of crystals x Reynolds, hue = Toil
+    # 9: N of crystals x Reynolds, hue = Toil
     df_2 = data_crystals.groupby(['Toil','Reynolds'], as_index=False)['N_of_crystals'].sum()
     plt.subplot(2, 2, 2)
     sns.lineplot(x=df_2['Reynolds'], y=df_2['N_of_crystals'], hue=df_2['Toil'])
     plt.title('N_of_crystals x Reynolds')
  
-    # 8: N of crystals x Reynolds, hue = Tcool
+    # 10: N of crystals x Reynolds, hue = Tcool
     df_3 = data_crystals.groupby(['Tcool','Reynolds'], as_index=False)['N_of_crystals'].sum()
     plt.subplot(2, 2, 3)
     sns.lineplot(x=df_3['Reynolds'], y=df_3['N_of_crystals'], hue=df_3['Tcool'])
     plt.title('N_of_crystals x Reynolds')
  
-    # 9: N_of_crystals x Time
+    # 11: N_of_crystals x Time
     df_4 = data_crystals.groupby(['Type','Time'], as_index=False)['N_of_crystals'].sum()
     plt.subplot(2, 2, 4)
     df_4['Time'] = df_4['Time'].astype(int)
@@ -73,7 +74,7 @@ def graphics(data, data_crystals):
     plt.title('N_of_crystals x Time')
     plt.show()
     
-    # # 10: Distribution of N_of_crystals
+    # # 12: Distribution of N_of_crystals
     # sns.histplot(data_crystals, x = data_crystals['N_of_crystals'].sum(), bins=15, kde=True, hue=data_crystals['Type'])
     # plt.title('Distribuiton of N_of_crystals')
     # plt.show()  
@@ -90,4 +91,4 @@ def hierarchy(data):
 
     plt.subplot(2,2,4)
     sns.scatterplot(data=data, x='Parent(%)', y='No Parent/Child(%)', hue='Time')
-    # plt.show()
+    plt.show()

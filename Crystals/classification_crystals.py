@@ -149,9 +149,9 @@ def classification(image, data, contours, hierarchy, properties):
 
 
     # validate the contours
-    # cv2.imshow('Cristais_%s_%s_%s' % (properties[1], properties[3], properties[6]), image)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    cv2.imshow('Cristais_%s_%s_%s' % (properties[1], properties[3], properties[6]), image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
             
     
     n_of_crystals = data.shape[0]

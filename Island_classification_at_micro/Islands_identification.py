@@ -21,8 +21,8 @@ def row_to_append(dataframe, columns, values):
 def get_image(file):
     return cv2.imread('%s/%s' % (FOLDER_PATH, file))
 
-def save_the_image(folder_path, filename, image):
-    return cv2.imwrite(os.path.join(folder_path, '%s_island.jpg' % filename[:-4]), image)
+def save_the_image(folder_path, filename, num, image):
+    return cv2.imwrite(os.path.join(folder_path, '%s_island_%s.jpg' % (filename[:-4], num+1)), image)
 
 def check_if_image_island_exists(folder_path, file):
     if file and '%s_island.jpg' % file[:-4] in os.listdir(folder_path):
@@ -98,34 +98,6 @@ def classify(image, data, contours, hierarchy, properties):
     
     return data          
 
-def crop_the_island(image):
-    # Converte para escala de cinza
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-    # thresholding
-    ret, thresh = cv2.threshold(gray, 60, 255, cv2.THRESH_BINARY)
-
-    # Encontra contornos
-    contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-    # Encontra contorno com maior área
-    largest_contour = max(contours, key=cv2.contourArea)
-
-    # Retâgulo em torno do maior contorno
-    x, y, w, h = cv2.boundingRect(largest_contour)
-
-    # Crop 
-    cropped_gray = gray[y:y+h, x:x+w]
-    cropped_image = image[y:y+h, x:x+w]
-
-    # Mostra crop
-    # cv2.imshow("Cropped Gray", cropped_gray)
-    cv2.imshow("Cropped Color", cropped_image)
-
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-    
-    return cropped_image, contours, hierarchy
 
 def data_each_image(data, n_cnt, n_of_crystals):
     n_cnt.append(n_of_crystals)
@@ -139,27 +111,59 @@ def data_islands(data_image, quant_islands):
     data_image = data_image.sort_values("Area", ascending=False)
     return data_image[:quant_islands]
 
+def data_island_statistic(data_islands):
+    pass
+
 def exclude_island_full_image(data_islands, size_image):
     for i in range(data_islands.shape[0]):
-        if data_islands.iloc[i,:]['Area'] == size_image:
-            data_islands = data_islands.drop(data_islands.iloc[i,:].name, axis=0)
-    return data_islands
+        if int(data_islands.iloc[i,:]['Area']) > int(0.95 * size_image):
+            # data_islands = data_islands.drop(data_islands.iloc[i,:].name, axis=0)
+            return True
+    # return data_islands
+        
+def draw_island(image, data_islands):
+    for i in range(data_islands.shape[0]):
+        mimAreaRect = cv2.minAreaRect(data_islands.iloc[i,:]['Countour'])
+        # mimAreaRect = data_islands.iloc[i,:]['Countour']
+        box = cv2.boxPoints(mimAreaRect)
+        box = np.int0(box)
+        image = cv2.drawContours(image, [box], 0, (0, 0, 255), 1)
+        
+        # cv2.imshow('Image', image)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
+        
+def crop_the_island(image, cnt):
+    x, y, w, h = cv2.boundingRect(cnt)
+
+    # Crop
+    cropped_image = image[y:y+h, x:x+w]
+
+    # cv2.imshow("Cropped Color", cropped_image)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
     
+    return cropped_image
     
 # Path 
 # FOLDER_PATH = '/home/lucas/FUNWAX/Images' ## linux path
 FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Island_classification_at_micro\MicroImages'
 data = create_dataframes(['Type', 'Reynolds', 'Toil', 'Tcool', 'Time','AR','Area','Countour'])
 n_cnt = []
-for i,file in enumerate(os.listdir(FOLDER_PATH)):
+for file in (os.listdir(FOLDER_PATH))[1:]:
+    print('%s' % file)
     if get_properties(file)[1] == 'Micro' and (image_island(get_properties(file)) is False) and (check_if_image_island_exists(FOLDER_PATH, file) is False): 
         image = get_image(file)
+        image_df = image.copy()
+        image_is = image.copy()
         contours, hierarchy = filter(image)
         data = classify(image,data,contours,hierarchy,get_properties(file))
         df = data_each_image(data, n_cnt, data.shape[0])
-        df_ = data_islands(df, 5)
-        df__ = exclude_island_full_image(df_, image.shape[0]*image.shape[1])
-        
-        # island_image = crop_the_island(image)
-        # save_the_image(FOLDER_PATH, file, island_image)
-    print('%s...OK' % file)
+        df_islands = data_islands(df, 7)
+        # df_islands = exclude_island_full_image(df_islands, image.shape[0]*image.shape[1])
+        draw_island(image_df, df_islands)
+        for i in range(df_islands.shape[0]):
+            island_image = crop_the_island(image_is, df_islands.iloc[i,:]['Countour'])
+            save_the_image(FOLDER_PATH, filename=file, num=i, image=island_image)
+    
+    break

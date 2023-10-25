@@ -28,7 +28,7 @@ def main(island, scale_crop):
             
     print('Start to classify the crystals')
     files = get_files(FOLDER_PATH) 
-    for file in files[120:150]:
+    for file in files:
         properties = get_properties(file)
         
         if images_to_verify(properties, island):

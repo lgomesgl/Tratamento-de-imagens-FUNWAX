@@ -57,7 +57,7 @@ def smaler_island(cropped_image, image_size):
     
 def main_island(folder_path):  
     print('Start to crop the island at micro images')  
-    print('---------------NEW IMAGES---------------')
+    print('---------------NEW ISLAND IMAGES---------------')
     counter_new_images = 0
     for file in os.listdir(folder_path):
         if check_to_crop(folder_path, file):

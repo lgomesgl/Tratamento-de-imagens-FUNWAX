@@ -45,60 +45,79 @@ def get_properties(file):
     return properties
 
 def filter(image, properties):
-    # Convert to grayscale
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    mean = cv2.mean(gray)[0]
-    if mean < 100:
-        image = cv2.bitwise_not(image)
+    if properties[1] == 'Micro':
+        #Convert to grayscale
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        mean = cv2.mean(gray)[0]
+        if mean < 127:
+            image = cv2.bitwise_not(image)
 
-    # Apply adaptive histogram equalization
-    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(10, 10))
-    enhanced_gray = clahe.apply(gray)
+        #blur filter
+        blurImg = cv2.blur(gray, (5, 5))
 
-    # Function to calculate image contrast
-    def image_contrast(original, corrected):
-        mean_intensity_original = np.mean(original)
-        std_intensity_original = np.std(original)
+        #Set the threshold (version applied to microwax)
+        thresh = cv2.adaptiveThreshold(blurImg, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 13,-5)
+
+        # Identify the contours
+        contours, hierarchy = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
         
-        mean_intensity_corrected = np.mean(corrected)
-        std_intensity_corrected = np.std(corrected)
+        return contours, hierarchy
         
-        contrast_original = std_intensity_original / mean_intensity_original
-        contrast_corrected = std_intensity_corrected / mean_intensity_corrected
+    else:
+        # Convert to grayscale
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        mean = cv2.mean(gray)[0]
+        if mean < 100:
+            image = cv2.bitwise_not(image)
+
+        # Apply adaptive histogram equalization
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(10, 10))
+        enhanced_gray = clahe.apply(gray)
+
+        # Function to calculate image contrast
+        def image_contrast(original, corrected):
+            mean_intensity_original = np.mean(original)
+            std_intensity_original = np.std(original)
+            
+            mean_intensity_corrected = np.mean(corrected)
+            std_intensity_corrected = np.std(corrected)
+            
+            contrast_original = std_intensity_original / mean_intensity_original
+            contrast_corrected = std_intensity_corrected / mean_intensity_corrected
+            
+            return contrast_original, contrast_corrected
+
+        # Range de busca para gamma
+        gamma_values = np.linspace(0.5, 3.5, num=31)
+        best_gamma = 1.0
+        best_contrast_increase = 0.0
+        original_contrast, _ = image_contrast(enhanced_gray, enhanced_gray)
         
-        return contrast_original, contrast_corrected
+        for gamma in gamma_values:
+            gamma_corrected = np.power(enhanced_gray / 255.0, gamma) * 255.0
+            gamma_corrected = gamma_corrected.astype(np.uint8)
 
-    # Range de busca para gamma
-    gamma_values = np.linspace(0.5, 3.5, num=31)
-    best_gamma = 1.0
-    best_contrast_increase = 0.0
-    original_contrast, _ = image_contrast(enhanced_gray, enhanced_gray)
-    
-    for gamma in gamma_values:
-        gamma_corrected = np.power(enhanced_gray / 255.0, gamma) * 255.0
-        gamma_corrected = gamma_corrected.astype(np.uint8)
+            _, corrected_contrast = image_contrast(enhanced_gray, gamma_corrected)
+            contrast_increase = corrected_contrast - original_contrast
 
-        _, corrected_contrast = image_contrast(enhanced_gray, gamma_corrected)
-        contrast_increase = corrected_contrast - original_contrast
+            if contrast_increase > best_contrast_increase:
+                best_contrast_increase = contrast_increase
+                best_gamma = gamma
+            
+        # Apply the best gamma correction
+        best_gamma_corrected = np.power(enhanced_gray / 255.0, best_gamma) * 255.0
+        best_gamma_corrected = best_gamma_corrected.astype(np.uint8)
 
-        if contrast_increase > best_contrast_increase:
-            best_contrast_increase = contrast_increase
-            best_gamma = gamma
-        
-    # Apply the best gamma correction
-    best_gamma_corrected = np.power(enhanced_gray / 255.0, best_gamma) * 255.0
-    best_gamma_corrected = best_gamma_corrected.astype(np.uint8)
+        # Apply Gaussian blur (adjust kernel size as needed)
+        blurred = cv2.GaussianBlur(best_gamma_corrected, (1, 1), 0)
 
-    # Apply Gaussian blur (adjust kernel size as needed)
-    blurred = cv2.GaussianBlur(best_gamma_corrected, (1, 1), 0)
+        # Use Otsu's thresholding
+        _, thresh = cv2.threshold(blurred, 90, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
-    # Use Otsu's thresholding
-    _, thresh = cv2.threshold(blurred, 90, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-
-    # Find contours and contour hierarchy
-    contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-         
-    return contours, hierarchy
+        # Find contours and contour hierarchy
+        contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+            
+        return contours, hierarchy
 
 def classification(image, data, contours, hierarchy, properties):
     cont_parent, cont_child, cont_else = 0, 0, 0
@@ -147,13 +166,11 @@ def classification(image, data, contours, hierarchy, properties):
     
     perct_parent, perct_child, perct_else = proportion_contours(cont_parent,cont_child,cont_else)
 
-
     # validate the contours
-    cv2.imshow('Cristais_%s_%s_%s' % (properties[1], properties[3], properties[6]), image)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-            
-    
+    # cv2.imshow('Cristais_%s_%s_%s' % (properties[1], properties[3], properties[6]), image)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+             
     n_of_crystals = data.shape[0]
     
     return data, n_of_crystals, perct_parent, perct_child, perct_else 

@@ -34,7 +34,7 @@ def get_properties(file):
     return properties
 
 def image_island(properties):
-    if len(properties) == 8:
+    if len(properties) >= 8:
         return True
     return False
 
@@ -114,17 +114,14 @@ def data_islands(data_image, quant_islands):
 def data_island_statistic(data_islands):
     pass
 
-def exclude_island_full_image(data_islands, size_image):
-    for i in range(data_islands.shape[0]):
-        if int(data_islands.iloc[i,:]['Area']) > int(0.95 * size_image):
-            # data_islands = data_islands.drop(data_islands.iloc[i,:].name, axis=0)
-            return True
-    # return data_islands
-        
+def check_island_is_full_image(data_islands,i,size_image):
+    if int(data_islands.iloc[i,:]['Area']) > int(0.95 * size_image):
+        return True
+    return False
+
 def draw_island(image, data_islands):
     for i in range(data_islands.shape[0]):
         mimAreaRect = cv2.minAreaRect(data_islands.iloc[i,:]['Countour'])
-        # mimAreaRect = data_islands.iloc[i,:]['Countour']
         box = cv2.boxPoints(mimAreaRect)
         box = np.int0(box)
         image = cv2.drawContours(image, [box], 0, (0, 0, 255), 1)
@@ -135,35 +132,52 @@ def draw_island(image, data_islands):
         
 def crop_the_island(image, cnt):
     x, y, w, h = cv2.boundingRect(cnt)
-
-    # Crop
     cropped_image = image[y:y+h, x:x+w]
 
-    # cv2.imshow("Cropped Color", cropped_image)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    cv2.imshow("Cropped Color", cropped_image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
     
     return cropped_image
+
+def detect_if_island_is_legend(island_image):
+    lower_red = np.array([0, 0, 200], dtype = "uint8")
+    upper_red= np.array([0, 0, 255], dtype = "uint8")
+    mask = cv2.inRange(island_image, lower_red, upper_red)
+    if not sum(sum(mask)) == 0:
+        return True
+    return False
     
 # Path 
 # FOLDER_PATH = '/home/lucas/FUNWAX/Images' ## linux path
 FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Island_classification_at_micro\MicroImages'
 data = create_dataframes(['Type', 'Reynolds', 'Toil', 'Tcool', 'Time','AR','Area','Countour'])
 n_cnt = []
-for file in (os.listdir(FOLDER_PATH))[1:]:
-    print('%s' % file)
+for file in (os.listdir(FOLDER_PATH)):
     if get_properties(file)[1] == 'Micro' and (image_island(get_properties(file)) is False) and (check_if_image_island_exists(FOLDER_PATH, file) is False): 
+        print('%s' % file)
         image = get_image(file)
         image_df = image.copy()
         image_is = image.copy()
         contours, hierarchy = filter(image)
         data = classify(image,data,contours,hierarchy,get_properties(file))
         df = data_each_image(data, n_cnt, data.shape[0])
-        df_islands = data_islands(df, 7)
-        # df_islands = exclude_island_full_image(df_islands, image.shape[0]*image.shape[1])
-        draw_island(image_df, df_islands)
+        df_islands = data_islands(df, 5)
+        # draw_island(image_df, df_islands)
         for i in range(df_islands.shape[0]):
             island_image = crop_the_island(image_is, df_islands.iloc[i,:]['Countour'])
+            
+            if detect_if_island_is_legend(island_image):
+                continue
+                        
             save_the_image(FOLDER_PATH, filename=file, num=i, image=island_image)
+            if check_island_is_full_image(df_islands, i,image.shape[0]*image.shape[1]) :
+                break
+        
+def delete_islands(folder_path):
+    for file in os.listdir(folder_path):
+        if image_island(get_properties(file)) is True:
+            os.remove('%s/%s' %(folder_path, file))
+            
+# delete_islands(FOLDER_PATH)
     
-    break

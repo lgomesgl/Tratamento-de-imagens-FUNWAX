@@ -22,7 +22,7 @@ def get_image(file):
     return cv2.imread('%s/%s' % (FOLDER_PATH, file))
 
 def save_the_image(folder_path, filename, num, image):
-    return cv2.imwrite(os.path.join(folder_path, '%s_island_%s.jpg' % (filename[:-4], num+1)), image)
+    return cv2.imwrite(os.path.join(folder_path, '%s_island_%s.jpg' % (filename[:-4], num)), image)
 
 def check_if_image_island_exists(folder_path, file):
     if file and '%s_island.jpg' % file[:-4] in os.listdir(folder_path):
@@ -131,9 +131,9 @@ def crop_the_island(image, cnt):
     x, y, w, h = cv2.boundingRect(cnt)
     cropped_image = image[y:y+h, x:x+w]
 
-    cv2.imshow("Cropped Color", cropped_image)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # cv2.imshow("Cropped Color", cropped_image)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
     
     return cropped_image
 
@@ -141,7 +141,9 @@ def detect_if_island_is_legend(island_image):
     lower_red = np.array([0, 0, 200], dtype = "uint8")
     upper_red= np.array([0, 0, 255], dtype = "uint8")
     mask = cv2.inRange(island_image, lower_red, upper_red)
-    if not sum(sum(mask)) == 0:
+    size_image = island_image.shape[0]*island_image.shape[1]
+    
+    if not sum(sum(mask)) == 0 and size_image < 100000:
         return True
     return False
     
@@ -170,7 +172,7 @@ for file in (os.listdir(FOLDER_PATH)):
             
             save_the_image(FOLDER_PATH, filename=file, num=count, image=island_image)
             count +=1
-            if check_island_is_full_image(df_islands, i,image.shape[0]*image.shape[1]) :
+            if check_island_is_full_image(df_islands, i,image.shape[0]*image.shape[1]):
                 break
         
 def delete_islands(folder_path):

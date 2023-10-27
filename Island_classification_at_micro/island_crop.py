@@ -22,7 +22,7 @@ def get_image(folder_path, file):
     return cv2.imread('%s/%s' % (folder_path, file))
 
 def save_the_image(folder_path, filename, num, image):
-    return cv2.imwrite(os.path.join(folder_path, '%s_island_%s.jpg' % (filename[:-4], num+1)), image)
+    return cv2.imwrite(os.path.join(folder_path, '%s_island_%s.jpg' % (filename[:-4], num)), image)
 
 def get_properties(file):
     properties = file[:-4].split('_')
@@ -145,7 +145,9 @@ def detect_if_island_is_legend(island_image):
     lower_red = np.array([0, 0, 200], dtype = "uint8")
     upper_red= np.array([0, 0, 255], dtype = "uint8")
     mask = cv2.inRange(island_image, lower_red, upper_red)
-    if not sum(sum(mask)) == 0:
+    size_image = island_image.shape[0]*island_image.shape[1]
+    
+    if not sum(sum(mask)) == 0 and size_image < 100000:
         return True
     return False
 
@@ -172,18 +174,19 @@ def main_island(folder_path, quant_islands):
             df_islands = data_islands(df, quant_islands)    
             # draw_island(image_df, df_islands)
             
+            island_num = 0
             for i in range(df_islands.shape[0]):
                 island_image = crop_the_island(image_is, df_islands.iloc[i,:]['Countour'])
                 
                 if detect_if_island_is_legend(island_image):
                     continue
                 
-                save_the_image(folder_path, filename=file, num=i, image=island_image)                  
-                
+                save_the_image(folder_path, filename=file, num=island_num, image=island_image)                  
+                island_num += 1
                 if check_island_is_full_image(df_islands, row=i, size_image=image.shape[0]*image.shape[1]):
                     break
                 
-            print('%s - islands:%s' % (file, quant_islands))
+            print('%s - islands:%s' % (file, island_num))
             counter_new_images += 1
                 
     if counter_new_images == 0:

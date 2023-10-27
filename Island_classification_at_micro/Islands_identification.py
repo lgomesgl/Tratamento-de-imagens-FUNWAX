@@ -111,9 +111,6 @@ def data_islands(data_image, quant_islands):
     data_image = data_image.sort_values("Area", ascending=False)
     return data_image[:quant_islands]
 
-def data_island_statistic(data_islands):
-    pass
-
 def check_island_is_full_image(data_islands,i,size_image):
     if int(data_islands.iloc[i,:]['Area']) > int(0.95 * size_image):
         return True
@@ -164,13 +161,15 @@ for file in (os.listdir(FOLDER_PATH)):
         df = data_each_image(data, n_cnt, data.shape[0])
         df_islands = data_islands(df, 5)
         # draw_island(image_df, df_islands)
+        count = 1
         for i in range(df_islands.shape[0]):
             island_image = crop_the_island(image_is, df_islands.iloc[i,:]['Countour'])
             
             if detect_if_island_is_legend(island_image):
                 continue
-                        
-            save_the_image(FOLDER_PATH, filename=file, num=i, image=island_image)
+            
+            save_the_image(FOLDER_PATH, filename=file, num=count, image=island_image)
+            count +=1
             if check_island_is_full_image(df_islands, i,image.shape[0]*image.shape[1]) :
                 break
         

@@ -12,24 +12,6 @@ def get_files(folder_path):
 def get_image(folder_path, file):
     return cv2.imread('%s/%s' % (folder_path, file))
 
-def images_to_verify(properties, island):
-    if properties[1] == 'Macro' or (properties[1] == 'Micro' and is_island(properties) is island) or properties[1] == 'Mistura':
-        return True
-    return False
-
-def images_to_crop(island):
-    if island:
-        return ['Macro', 'Mistura']
-    return ['Macro','Micro','Mistura']
-    
-def crop_the_image(image, scale_crop):
-    height, width,_ = image.shape
-    crop_size = int(min(height, width) * scale_crop)
-    x = int((width - crop_size) / 2)
-    y = int((height - crop_size) / 2)
-    image = image[y:y+crop_size, x:x+crop_size]
-    return image
-
 def get_properties(file):
     '''
         properties[0] -> Number of the teste
@@ -43,6 +25,29 @@ def get_properties(file):
     '''
     properties = file[:-4].split('_')
     return properties
+
+def images_to_verify(properties, island):
+    if properties[1] == 'Macro' or (properties[1] == 'Micro' and is_island(properties) is island) or properties[1] == 'Mistura':
+        return True
+    return False
+
+def is_island(properties):
+    if len(properties) >= 8 :
+        return True
+    return False
+                 
+def images_to_crop(island):
+    if island:
+        return ['Macro', 'Mistura']
+    return ['Macro','Micro','Mistura']
+    
+def crop_the_image(image, scale_crop):
+    height, width,_ = image.shape
+    crop_size = int(min(height, width) * scale_crop)
+    x = int((width - crop_size) / 2)
+    y = int((height - crop_size) / 2)
+    image = image[y:y+crop_size, x:x+crop_size]
+    return image
 
 def filter(image, properties):
     if properties[1] == 'Micro':
@@ -167,23 +172,13 @@ def classification(image, data, contours, hierarchy, properties):
     perct_parent, perct_child, perct_else = proportion_contours(cont_parent,cont_child,cont_else)
 
     # validate the contours
-    # cv2.imshow('Cristais_%s_%s_%s' % (properties[1], properties[3], properties[6]), image)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    cv2.imshow('Cristais_%s_%s_%s' % (properties[1], properties[3], properties[6]), image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
              
     n_of_crystals = data.shape[0]
     
     return data, n_of_crystals, perct_parent, perct_child, perct_else 
-
-def is_island(properties):
-    if len(properties) == 8 :
-        return True
-    return False
-                  
-def crystals_stage(properties):
-    if properties[6] < 7: 
-        return 'initial'
-    return 'developed'
 
 def proportion_contours(cont_parent, cont_child, cont_else):
     sum = cont_parent + cont_child + cont_else

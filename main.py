@@ -1,4 +1,4 @@
-from Island_classification_at_micro.island_crop import main_island
+from Island_classification_at_micro.island_crop import main_island, delete_islands
 from Crystals.data import create_dataframes, separate_the_data_by_column, save_the_data, data_n_of_crystals, data_each_image
 from Crystals.classification_crystals import get_files, get_properties, images_to_verify, get_image, crop_the_image, filter, classification, images_to_crop
 from Statistic.hierarchy_erro import hierarchy_erro
@@ -24,7 +24,7 @@ def main(island, scale_crop):
 
     # Code    
     if island:   
-        main_island(FOLDER_PATH) # crop the island from micro type images
+        main_island(FOLDER_PATH, 5) # crop the island from micro type images
             
     print('Start to classify the crystals')
     files = get_files(FOLDER_PATH) 
@@ -62,3 +62,5 @@ def main(island, scale_crop):
     return data, data_crystals
 
 data, data_crystals = main(island=True, scale_crop=0.5)
+
+# delete_islands(FOLDER_PATH)

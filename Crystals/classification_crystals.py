@@ -22,11 +22,12 @@ def get_properties(file):
             ''    [5] -> Tcool
             ''    [6] -> Time
             ''    [7] -> Island, only Micro
+            ''    [8] -> Island number, only Micro
     '''
-    properties = file[:-4].split('_')
-    return properties
+    return file[:-4].split('_')
 
 def images_to_verify(properties, island):
+    
     if properties[1] == 'Macro' or (properties[1] == 'Micro' and is_island(properties) is island) or properties[1] == 'Mistura':
         return True
     return False
@@ -38,7 +39,7 @@ def is_island(properties):
                  
 def images_to_crop(island):
     if island:
-        return ['Macro', 'Mistura']
+        return ['Macro','Mistura']
     return ['Macro','Micro','Mistura']
     
 def crop_the_image(image, scale_crop):
@@ -162,7 +163,7 @@ def classification(image, data, contours, hierarchy, properties):
                 box = cv2.boxPoints(minAreaRect)
                 box = np.int0(box)         
                 cont_else += 1
-                # row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':properties[6], 'cx': cx, 'cy': cy, 'major': major, 'minor': minor, 'angle':angle, 'AR': ar}])
+                
                 row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':int(properties[6]), 'Island':'Outside', 'AR': aspect_ratio}])
                 data = pd.concat([data, row_to_append], ignore_index=True)
                         
@@ -172,9 +173,9 @@ def classification(image, data, contours, hierarchy, properties):
     perct_parent, perct_child, perct_else = proportion_contours(cont_parent,cont_child,cont_else)
 
     # validate the contours
-    cv2.imshow('Cristais_%s_%s_%s' % (properties[1], properties[3], properties[6]), image)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # cv2.imshow('Cristais_%s_%s_%s' % (properties[1], properties[3], properties[6]), image)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
              
     n_of_crystals = data.shape[0]
     

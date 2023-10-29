@@ -18,6 +18,9 @@ def row_to_append(dataframe, columns, values):
     row_to_append = pd.DataFrame([dict])
     return pd.concat([dataframe, row_to_append], ignore_index=True)
 
+def save_the_data(data, name_csv_file):
+    return data.to_csv(name_csv_file, index=True)
+
 def get_image(file):
     return cv2.imread('%s/%s' % (FOLDER_PATH, file))
 
@@ -142,43 +145,55 @@ def detect_if_island_is_legend(island_image):
     upper_red= np.array([0, 0, 255], dtype = "uint8")
     mask = cv2.inRange(island_image, lower_red, upper_red)
     size_image = island_image.shape[0]*island_image.shape[1]
-    
+    # print(sum(sum(mask)))
     if not sum(sum(mask)) == 0 and size_image < 100000:
         return True
     return False
-    
+
+def image_copy(image, num):
+    images = []
+    for i in range(num):
+        images.append(image.copy())
+    return images
 # Path 
 # FOLDER_PATH = '/home/lucas/FUNWAX/Images' ## linux path
 FOLDER_PATH = 'D:\LUCAS\IC\FUNWAX\Island_classification_at_micro\MicroImages'
 data = create_dataframes(['Type', 'Reynolds', 'Toil', 'Tcool', 'Time','AR','Area','Countour'])
+df_cnt = data.copy()
 n_cnt = []
 for file in (os.listdir(FOLDER_PATH)):
     if get_properties(file)[1] == 'Micro' and (image_island(get_properties(file)) is False) and (check_if_image_island_exists(FOLDER_PATH, file) is False): 
         print('%s' % file)
         image = get_image(file)
-        image_df = image.copy()
-        image_is = image.copy()
+        images = image_copy(image, 2)
+        
+        properties = get_properties(file)
+        
         contours, hierarchy = filter(image)
-        data = classify(image,data,contours,hierarchy,get_properties(file))
+        data = classify(image,data,contours,hierarchy,properties)
         df = data_each_image(data, n_cnt, data.shape[0])
-        df_islands = data_islands(df, 5)
+        df_islands = data_islands(df, quant_islands=5)
         # draw_island(image_df, df_islands)
         count = 1
         for i in range(df_islands.shape[0]):
-            island_image = crop_the_island(image_is, df_islands.iloc[i,:]['Countour'])
+            island_image = crop_the_island(images[0], df_islands.iloc[i,:]['Countour'])
             
             if detect_if_island_is_legend(island_image):
                 continue
             
             save_the_image(FOLDER_PATH, filename=file, num=count, image=island_image)
+            row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':int(properties[6]), 'AR': df_islands.iloc[i,:]['AR'],'Area':df_islands.iloc[i,:]['Area'], 'Countour': df_islands.iloc[i,:]['Countour']}])
+            df_cnt = pd.concat([df_cnt, row_to_append], ignore_index=True)      
+                     
             count +=1
             if check_island_is_full_image(df_islands, i,image.shape[0]*image.shape[1]):
                 break
         
+save_the_data(df_cnt, 'D:\LUCAS\IC\FUNWAX\Island_classification_at_micro\Results_islands.csv')
 def delete_islands(folder_path):
     for file in os.listdir(folder_path):
         if image_island(get_properties(file)) is True:
             os.remove('%s/%s' %(folder_path, file))
             
 # delete_islands(FOLDER_PATH)
-    
+# D:\LUCAS\IC\FUNWAX\ImageNew\1_Micro_10_9000_47_6_1.jpg

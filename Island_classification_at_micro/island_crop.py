@@ -18,15 +18,23 @@ def row_to_append(dataframe, columns, values):
     row_to_append = pd.DataFrame([dict])
     return pd.concat([dataframe, row_to_append], ignore_index=True)
 
+def save_the_data(data, name_csv_file):
+    return data.to_csv(name_csv_file, index=True)
+
 def get_image(folder_path, file):
     return cv2.imread('%s/%s' % (folder_path, file))
 
 def save_the_image(folder_path, filename, num, image):
     return cv2.imwrite(os.path.join(folder_path, '%s_island_%s.jpg' % (filename[:-4], num)), image)
 
+def image_copy(image, num):
+    images = []
+    for i in range(num):
+        images.append(image.copy())
+    return images
+
 def get_properties(file):
-    properties = file[:-4].split('_')
-    return properties
+    return file[:-4].split('_')
 
 def image_island(properties):
     if len(properties) >= 8:
@@ -89,7 +97,8 @@ def classify(image, data, contours, hierarchy, properties):
                 aspect_ratio = major / minor
                 area = major * minor
                 box = cv2.boxPoints(minAreaRect)
-                box = np.int0(box)         
+                box = np.int0(box)   
+                     
                 row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':int(properties[6]), 'AR': aspect_ratio,'Area':area, 'Countour': cnt}])
                 data = pd.concat([data, row_to_append], ignore_index=True)   
                                  
@@ -129,8 +138,7 @@ def data_each_image(data, n_cnt, n_of_crystals):
 
     if len(n_cnt) == 1:
         return data.iloc[0:n_of_crystals]
-    else:  
-        return data.iloc[n_cnt[-2]:n_cnt[-1]]  
+    return data.iloc[n_cnt[-2]:n_cnt[-1]]  
     
 def data_islands(data_image, quant_islands):
     data_image = data_image.sort_values("Area", ascending=False)
@@ -165,24 +173,27 @@ def main_island(folder_path, quant_islands):
     for file in os.listdir(folder_path):
         if check_to_crop(folder_path, file):
             image = get_image(folder_path, file)
-            image_df = image.copy()
-            image_is = image.copy()   
-                  
+            images = image_copy(image,2) 
+
+            properties = get_properties(file)
             contours, hierarchy = filter(image)
-            data = classify(image,data,contours,hierarchy,get_properties(file))
+            data = classify(image,data,contours,hierarchy,properties)
             df = data_each_image(data, n_cnt, data.shape[0])
             df_islands = data_islands(df, quant_islands)    
-            # draw_island(image_df, df_islands)
+            # draw_island(images[0], df_islands)
             
             island_num = 0
             for i in range(df_islands.shape[0]):
-                island_image = crop_the_island(image_is, df_islands.iloc[i,:]['Countour'])
+                island_image = crop_the_island(images[1], df_islands.iloc[i,:]['Countour'])
                 
                 if detect_if_island_is_legend(island_image):
                     continue
                 
-                save_the_image(folder_path, filename=file, num=island_num, image=island_image)                  
+                save_the_image(folder_path, filename=file, num=island_num, image=island_image)    
+                row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':int(properties[6]), 'AR': df_islands.iloc[i,:]['AR'],'Area':df_islands.iloc[i,:]['Area'], 'Countour': df_islands.iloc[i,:]['Countour']}])
+                df_cnt = pd.concat([df_cnt, row_to_append], ignore_index=True)                                 
                 island_num += 1
+                
                 if check_island_is_full_image(df_islands, row=i, size_image=image.shape[0]*image.shape[1]):
                     break
                 
@@ -192,3 +203,8 @@ def main_island(folder_path, quant_islands):
     if counter_new_images == 0:
         print('All micro images has cropped')
     print('-----------------------------------------')
+    
+    save_the_data(df_cnt, 'D:\LUCAS\IC\FUNWAX\Results_islands.csv')
+    
+    # creat a function that return the scale_crop
+    # function -> (number_of_micro_images, sum_of_total_area_at_micro)

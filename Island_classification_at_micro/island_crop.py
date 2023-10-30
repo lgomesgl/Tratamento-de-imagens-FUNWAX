@@ -166,6 +166,7 @@ def delete_islands(folder_path):
             
 def main_island(folder_path, quant_islands):  
     data = create_dataframes(['Type', 'Reynolds', 'Toil', 'Tcool', 'Time','AR','Area','Countour'])
+    df_cnt = data.copy()
     n_cnt = []
     print('Start to crop the island at micro images')  
     print('------------NEW ISLAND IMAGES------------') 
@@ -208,3 +209,5 @@ def main_island(folder_path, quant_islands):
     
     # creat a function that return the scale_crop
     # function -> (number_of_micro_images, sum_of_total_area_at_micro)
+    
+    

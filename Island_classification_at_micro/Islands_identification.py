@@ -126,9 +126,9 @@ def draw_island(image, data_islands):
         box = np.int0(box)
         image = cv2.drawContours(image, [box], 0, (0, 0, 255), 1)
         
-        # cv2.imshow('Image', image)
-        # cv2.waitKey(0)
-        # cv2.destroyAllWindows()
+        cv2.imshow('Image', image)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
         
 def crop_the_island(image, cnt):
     x, y, w, h = cv2.boundingRect(cnt)
@@ -173,10 +173,10 @@ for file in (os.listdir(FOLDER_PATH)):
         data = classify(image,data,contours,hierarchy,properties)
         df = data_each_image(data, n_cnt, data.shape[0])
         df_islands = data_islands(df, quant_islands=5)
-        # draw_island(image_df, df_islands)
+        draw_island(images[0], df_islands)
         count = 1
         for i in range(df_islands.shape[0]):
-            island_image = crop_the_island(images[0], df_islands.iloc[i,:]['Countour'])
+            island_image = crop_the_island(images[1], df_islands.iloc[i,:]['Countour'])
             
             if detect_if_island_is_legend(island_image):
                 continue

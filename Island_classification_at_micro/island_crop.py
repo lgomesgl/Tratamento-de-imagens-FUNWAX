@@ -106,9 +106,9 @@ def classify(image, data, contours, hierarchy, properties):
                 image = cv2.drawContours(image, [box], 0, (0, 0, 255), 1)    
 
     # validate the contours
-    # cv2.imshow('Image', image)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()      
+    cv2.imshow('Image', image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()      
     
     return data   
 

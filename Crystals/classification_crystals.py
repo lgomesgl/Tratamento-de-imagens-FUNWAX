@@ -67,8 +67,8 @@ def filter_non_nucleated_crystals(image):
 
 def filter(image, properties):
                 
-
-    blurImg = cv2.GaussianBlur(image, (5, 5), 0)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    blurImg = cv2.GaussianBlur(gray, (5, 5), 0)
 
     if np.mean(image) < 100 and np.max(image) - np.min(image) > 100:
         threshold_img = cv2.adaptiveThreshold(blurImg, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 7, -5)

@@ -66,13 +66,29 @@ def filter_non_nucleated_crystals(image):
     return contours, hierarchy, 'non-nucleated'
 
 def filter(image, properties):
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    avg_tone = np.mean(gray)
-    limiar_tone = 150
-    equal_tone = all(abs(tone - avg_tone) < limiar_tone for tone in gray.flatten())
-    blurImg = cv2.blur(gray, (5, 5))
+                
+
+    blurImg = cv2.GaussianBlur(image, (5, 5), 0)
+
+    if np.mean(image) < 100 and np.max(image) - np.min(image) > 100:
+        threshold_img = cv2.adaptiveThreshold(blurImg, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 7, -5)
+        status = "Imagem com Fundo Escuro e Cristais Claros"
+    elif np.mean(image) > 150 and np.max(image) - np.min(image) > 100:
+        threshold_img = cv2.adaptiveThreshold(blurImg, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 49, 11)
+        status = "Imagem com Fundo Claro e Cristais Escuros"
+    else:
+        threshold_img = cv2.adaptiveThreshold(blurImg, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 49, 11)
+        status = "Imagem com Tons Médios"
     
-    print(avg_tone)
+    print(status)
+    contours, _ = cv2.findContours(threshold_img, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # avg_tone = np.mean(gray)
+    # limiar_tone = 150
+    # equal_tone = all(abs(tone - avg_tone) < limiar_tone for tone in gray.flatten())
+    # blurImg = cv2.blur(gray, (5, 5))
+    
+    # print(avg_tone)
     # if equal_tone:
     # # if avg_tone > 110:
     #     print("Image with average equal tones.")
@@ -166,7 +182,7 @@ def filter(image, properties):
     #     # Find contours and contour hierarchy
     #     contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
             
-        # return contours, hierarchy
+    return contours, _, status
 
 def classification(image, data, contours, hierarchy, properties,status):
     if status == 'nucleated':

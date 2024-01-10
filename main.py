@@ -4,6 +4,8 @@ from Crystals.classification_crystals import get_files, get_properties, images_t
 from Statistic.hierarchy_erro import hierarchy_erro
 from Processing.dynamic import dist_image
 from Processing.pos import graphics, hierarchy
+import numpy as np
+import cv2
 
 # Variables
 # FOLDER_PATH = '/home/lucas/FUNWAX/Images' ## linux path
@@ -36,11 +38,12 @@ def main(island, scale_crop):
             
             if properties[1] in images_to_crop(island):
                 image = crop_the_image(image, scale_crop)
-            
-            filter(image, properties)
-            for filter_ in [filter_non_nucleated_crystals(image), filter_nucleated_crystals(image)]:
-                contours, hierarchy, status = filter_
-                data, n_of_crystals, perct_parent, perct_child, perct_else  = classification(image, data, contours, hierarchy, properties, status)
+
+            contours, hierarchy, status = filter(image, properties)
+            data, n_of_crystals, perct_parent, perct_child, perct_else  = classification(image, data, contours, hierarchy, properties, status)
+            # for filter_ in [filter_non_nucleated_crystals(image), filter_nucleated_crystals(image)]:
+            #     contours, hierarchy, status = filter_
+            #     data, n_of_crystals, perct_parent, perct_child, perct_else  = classification(image, data, contours, hierarchy, properties, status)
 
             n_of_crystals_.append(n_of_crystals)
             data_crystals = data_n_of_crystals(data_crystals, properties, n_of_crystals_, perct_parent, perct_child, perct_else)
@@ -64,7 +67,7 @@ def main(island, scale_crop):
     return data, data_crystals
 
 if __name__ == '__main__':
-    data, data_crystals = main(island=True, scale_crop=0.5)
+    data, data_crystals = main(island=False, scale_crop=0.5)
 
 
 # delete_islands(FOLDER_PATH)

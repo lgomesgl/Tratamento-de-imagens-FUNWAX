@@ -4,8 +4,6 @@ from Crystals.classification_crystals import get_files, get_properties, images_t
 from Statistic.hierarchy_erro import hierarchy_erro
 from Processing.dynamic import dist_image
 from Processing.pos import graphics, hierarchy
-import numpy as np
-import cv2
 
 # Variables
 # FOLDER_PATH = '/home/lucas/FUNWAX/Images' ## linux path
@@ -68,6 +66,5 @@ def main(island, scale_crop):
 
 if __name__ == '__main__':
     data, data_crystals = main(island=False, scale_crop=0.5)
-
 
 # delete_islands(FOLDER_PATH)

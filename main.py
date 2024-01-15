@@ -1,9 +1,9 @@
-from Island_classification_at_micro.island_crop import main_island, delete_islands
+from Islands_at_micro.island_crop import main_island, delete_islands
 from Crystals.data import create_dataframes, separate_the_data_by_column, save_the_data, data_n_of_crystals, data_each_image
-from Crystals.classification_crystals import get_files, get_properties, images_to_verify, get_image, crop_the_image, filter, filter_nucleated_crystals, filter_non_nucleated_crystals, classification, images_to_crop
+from Crystals.classification_crystals import get_files, get_properties, images_to_verify, get_image, crop_the_image, filter, filter_nucleated_crystals, filter_non_nucleated_crystals, classification, images_to_crop, status_color_image
 from Statistic.hierarchy_erro import hierarchy_erro
-from Processing.dynamic import dist_image
-from Processing.pos import graphics, hierarchy
+from Data_visualization.dynamic import dist_image
+from Data_visualization.pos import graphics, hierarchy
 
 # Variables
 # FOLDER_PATH = '/home/lucas/FUNWAX/Images' ## linux path
@@ -37,8 +37,21 @@ def main(island, scale_crop):
             if properties[1] in images_to_crop(island):
                 image = crop_the_image(image, scale_crop)
 
-            contours, hierarchy, status = filter(image, properties)
-            data, n_of_crystals, perct_parent, perct_child, perct_else  = classification(image, data, contours, hierarchy, properties, status)
+            status = status_color_image(image)
+            
+            if status == "Imagem com Fundo Escuro e Cristais Claros":
+                contours, _ = filter_nucleated_crystals(image)
+                data, n_of_crystals, perct_parent, perct_child, perct_else  = classification(image, data, contours, _, properties, status)
+            elif status == "Imagem com Fundo Claro e Cristais Escuros":
+                contours, _ = filter_non_nucleated_crystals(image)
+                data, n_of_crystals, perct_parent, perct_child, perct_else  = classification(image, data, contours, _, properties, status)                
+            else:
+                for filter_ in [filter_non_nucleated_crystals(image), filter_nucleated_crystals(image)]:
+                    contours, _ = filter_
+                    data, n_of_crystals, perct_parent, perct_child, perct_else  = classification(image, data, contours, _, properties, status)
+            
+            # contours, hierarchy = filter(image, properties, status)
+            # data, n_of_crystals, perct_parent, perct_child, perct_else  = classification(image, data, contours, hierarchy, properties, status)
             # for filter_ in [filter_non_nucleated_crystals(image), filter_nucleated_crystals(image)]:
             #     contours, hierarchy, status = filter_
             #     data, n_of_crystals, perct_parent, perct_child, perct_else  = classification(image, data, contours, hierarchy, properties, status)
@@ -65,6 +78,6 @@ def main(island, scale_crop):
     return data, data_crystals
 
 if __name__ == '__main__':
-    data, data_crystals = main(island=False, scale_crop=0.5)
+    data, data_crystals = main(island=True, scale_crop=0.5)
 
 # delete_islands(FOLDER_PATH)

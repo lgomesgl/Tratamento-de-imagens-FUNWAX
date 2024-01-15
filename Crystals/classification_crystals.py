@@ -51,34 +51,47 @@ def crop_the_image(image, scale_crop):
 
 def filter_nucleated_crystals(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    avg_tone = np.mean(gray)  
-    blurImg = cv2.blur(gray, (5, 5))
+    # avg_tone = np.mean(gray)  
+    blurImg = cv2.GaussianBlur(gray, (5, 5), 0)
     thresh = cv2.adaptiveThreshold(blurImg, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 7,-5)
-    contours, hierarchy = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-    return contours, hierarchy, 'nucleated'
+    contours, _ = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    return contours, _
 
 def filter_non_nucleated_crystals(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    avg_tone = np.mean(gray)  
-    blurImg = cv2.blur(gray, (5, 5))
+    # avg_tone = np.mean(gray)  
+    blurImg = cv2.GaussianBlur(gray, (5, 5), 0)
     thresh = cv2.adaptiveThreshold(blurImg, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 49,11)
-    contours, hierarchy = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-    return contours, hierarchy, 'non-nucleated'
+    contours, _ = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    return contours, _
 
-def filter(image, properties):
+def status_color_image(image):
+    if np.mean(image) < 100 and np.max(image) - np.min(image) > 100:
+        status = "Imagem com Fundo Escuro e Cristais Claros"
+    elif np.mean(image) > 150 and np.max(image) - np.min(image) > 100:
+        status = "Imagem com Fundo Claro e Cristais Escuros"
+    else:
+        status = "Imagem com Tons Médios"
+    return status
+
+def filter(image, properties,status):
                 
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     blurImg = cv2.GaussianBlur(gray, (5, 5), 0)
+    
+    filter_1 = cv2.adaptiveThreshold(blurImg, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 7, -5)
+    filter_2 = cv2.adaptiveThreshold(blurImg, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 49, 11)            
 
-    if np.mean(image) < 100 and np.max(image) - np.min(image) > 100:
-        threshold_img = cv2.adaptiveThreshold(blurImg, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 7, -5)
-        status = "Imagem com Fundo Escuro e Cristais Claros"
-    elif np.mean(image) > 150 and np.max(image) - np.min(image) > 100:
-        threshold_img = cv2.adaptiveThreshold(blurImg, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 49, 11)
-        status = "Imagem com Fundo Claro e Cristais Escuros"
+    if status == "Imagem com Fundo Escuro e Cristais Claros":
+        # threshold_img = cv2.adaptiveThreshold(blurImg, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 7, -5)
+        threshold_img = filter_1
+    elif status == "Imagem com Fundo Claro e Cristais Escuros":
+        # threshold_img = cv2.adaptiveThreshold(blurImg, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 49, 11)
+        threshold_img = filter_2
     else:
-        threshold_img = cv2.adaptiveThreshold(blurImg, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 49, 11)
-        status = "Imagem com Tons Médios"
+        for filter in [filter_2, filter_1]:
+            # threshold_img = cv2.adaptiveThreshold(blurImg, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 7, -5)
+            threshold_img = filter
     
     print(status)
     contours, _ = cv2.findContours(threshold_img, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
@@ -182,7 +195,7 @@ def filter(image, properties):
     #     # Find contours and contour hierarchy
     #     contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
             
-    return contours, _, status
+    return contours, _
 
 def classification(image, data, contours, hierarchy, properties,status):
     if status == 'nucleated':
@@ -227,11 +240,12 @@ def classification(image, data, contours, hierarchy, properties,status):
                 box = np.int0(box)         
                 cont_else += 1
                 
-                row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':int(properties[6]), 'Island':'Outside', 'AR': aspect_ratio,'Status': status}])
-                data = pd.concat([data, row_to_append], ignore_index=True)
-                        
-                # draw the contours
-                image = cv2.drawContours(image, [box], 0, color, 1)
+                if width < 0.9*image.shape[0]:
+                    row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':int(properties[6]), 'Island':'Outside', 'AR': aspect_ratio,'Status': status}])
+                    data = pd.concat([data, row_to_append], ignore_index=True)
+                            
+                    # draw the contours
+                    image = cv2.drawContours(image, [box], 0, color, 1)
     
     perct_parent, perct_child, perct_else = proportion_contours(cont_parent,cont_child,cont_else)
 

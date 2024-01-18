@@ -3,7 +3,7 @@ from Crystals.data import create_dataframes, separate_the_data_by_column, save_t
 from Crystals.classification_crystals import get_files, get_properties, images_to_verify, get_image, crop_the_image, filter, filter_nucleated_crystals, filter_non_nucleated_crystals, classification, images_to_crop, status_color_image
 from Statistic.hierarchy_erro import hierarchy_erro
 from Data_visualization.dynamic import dist_image
-from Data_visualization.pos import graphics, hierarchy
+from Data_visualization.pos import graphics
 
 # Variables
 # FOLDER_PATH = '/home/lucas/FUNWAX/Images' ## linux path
@@ -40,15 +40,15 @@ def main(island, scale_crop):
             status = status_color_image(image)
             
             if status == "Imagem com Fundo Escuro e Cristais Claros":
-                contours, _ = filter_nucleated_crystals(image)
-                data, n_of_crystals, perct_parent, perct_child, perct_else  = classification(image, data, contours, _, properties, status)
+                contours, hierarchy, status_crystals = filter_nucleated_crystals(image)
+                data, n_of_crystals, perct_parent, perct_child, perct_else  = classification(image, data, contours, hierarchy, properties, status_crystals)
             elif status == "Imagem com Fundo Claro e Cristais Escuros":
-                contours, _ = filter_non_nucleated_crystals(image)
-                data, n_of_crystals, perct_parent, perct_child, perct_else  = classification(image, data, contours, _, properties, status)                
-            else:
+                contours, hierarchy, status_crystals = filter_non_nucleated_crystals(image)
+                data, n_of_crystals, perct_parent, perct_child, perct_else  = classification(image, data, contours, hierarchy, properties, status_crystals)                
+            elif status == "Imagem com Tons Médios":
                 for filter_ in [filter_non_nucleated_crystals(image), filter_nucleated_crystals(image)]:
-                    contours, _ = filter_
-                    data, n_of_crystals, perct_parent, perct_child, perct_else  = classification(image, data, contours, _, properties, status)
+                    contours, hierarchy, status_crystals = filter_
+                    data, n_of_crystals, perct_parent, perct_child, perct_else  = classification(image, data, contours, hierarchy, properties, status_crystals)
             
             # contours, hierarchy = filter(image, properties, status)
             # data, n_of_crystals, perct_parent, perct_child, perct_else  = classification(image, data, contours, hierarchy, properties, status)

@@ -55,7 +55,7 @@ def filter_nucleated_crystals(image):
     blurImg = cv2.GaussianBlur(gray, (5, 5), 0)
     thresh = cv2.adaptiveThreshold(blurImg, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 7,-5)
     contours, _ = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-    return contours, _
+    return contours, _, 'nucleated'
 
 def filter_non_nucleated_crystals(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -63,7 +63,7 @@ def filter_non_nucleated_crystals(image):
     blurImg = cv2.GaussianBlur(gray, (5, 5), 0)
     thresh = cv2.adaptiveThreshold(blurImg, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 49,11)
     contours, _ = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-    return contours, _
+    return contours, _, 'non-nucleated'
 
 def status_color_image(image):
     if np.mean(image) < 100 and np.max(image) - np.min(image) > 100:
@@ -197,11 +197,11 @@ def filter(image, properties,status):
             
     return contours, _
 
-def classification(image, data, contours, hierarchy, properties,status):
-    if status == 'nucleated':
-        color = (255, 0, 0)
-    else:
-        color = (0, 0, 255)
+def classification(image, data, contours, hierarchy, properties, status_crystals):
+    # if status == 'nucleated':
+    #     color = (255, 0, 0)
+    # else:
+    #     color = (0, 0, 255)
     cont_parent, cont_child, cont_else = 0, 0, 0
     # Iterate over all contours and store aspect ratios and rectangles based on inside/outside the islands
     for i, cnt in enumerate(contours):
@@ -241,11 +241,11 @@ def classification(image, data, contours, hierarchy, properties,status):
                 cont_else += 1
                 
                 if width < 0.9*image.shape[0]:
-                    row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':int(properties[6]), 'Island':'Outside', 'AR': aspect_ratio,'Status': status}])
+                    row_to_append = pd.DataFrame([{'Type':properties[1], 'Reynolds':properties[3], 'Toil':properties[4], 'Tcool':properties[5], 'Time':int(properties[6]), 'Island':'Outside', 'AR': aspect_ratio,'Status': status_crystals}])
                     data = pd.concat([data, row_to_append], ignore_index=True)
                             
                     # draw the contours
-                    image = cv2.drawContours(image, [box], 0, color, 1)
+                    image = cv2.drawContours(image, [box], 0, (0, 0, 255), 1)
     
     perct_parent, perct_child, perct_else = proportion_contours(cont_parent,cont_child,cont_else)
 
